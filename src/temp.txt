@@ -1,0 +1,245 @@
+    <div className={classes.root}>
+    <Typography variant="h5" className={classes.title}>Students</Typography>
+    <List>
+      {students.map((student, index) => (
+        <ListItem key={index}>
+          <ListItemAvatar>
+            <Avatar className={classes.avatar}>{student.name[0]}</Avatar>
+          </ListItemAvatar>
+          <ListItemText primary={student.name} secondary={`Number: ${student.number}`} />
+        </ListItem>
+      ))}
+    </List>
+    <Button variant="contained" color="primary" className={classes.viewMore}>View More</Button>
+  </div>
+
+
+   <Grid container spacing={2}>
+    <Grid item xs={12} md={6}>
+      <Card sx={{ height: '100%' }}>
+        <CardHeader title="Card 1" />
+        <CardContent>
+          <Typography variant="body1" color="text.secondary">
+            Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nulla ultricies tempus lectus ac iaculis. Sed facilisis eros nec felis malesuada, ac tristique velit efficitur. Integer bibendum, nibh sit amet sagittis pharetra, ipsum diam finibus est, nec gravida metus eros sed risus.
+          </Typography>
+        </CardContent>
+      </Card>
+    </Grid>
+    <Grid item xs={12} md={6}>
+      <Card sx={{ height: '100%' }}>
+        <CardHeader title="Card 2" />
+        <CardContent>
+          <Typography variant="body1" color="text.secondary">
+            Nunc sit amet arcu et augue gravida lobortis. Nullam dignissim odio a tortor varius consectetur. Sed vel ligula eleifend, fermentum nisi nec, sagittis lectus. Integer congue nisl vel felis tristique lacinia.
+          </Typography>
+        </CardContent>
+      </Card>
+    </Grid>
+  </Grid>
+
+
+   <Card className={classes.root}>
+      <CardHeader
+        title={
+          <div className={classes.header}>
+            <Typography variant="h6">{name}</Typography>
+            <div>
+              <IconButton aria-label="edit">
+                <EditIcon />
+              </IconButton>
+              <IconButton aria-label="delete">
+                <DeleteIcon />
+              </IconButton>
+            </div>
+          </div>
+        }
+      />
+      <CardContent className={classes.content}>
+        <Grid container spacing={2}>
+          <Grid item xs={12} lg={6}>
+            <Typography variant="subtitle1" gutterBottom>
+              Batch Code: {code}
+            </Typography>
+          </Grid>
+          <Grid item xs={12} lg={6}>
+            <Typography variant="subtitle1" gutterBottom>
+              Course Name: {course}
+            </Typography>
+          </Grid>
+          <Grid item xs={12} lg={6}>
+            <div className={classes.header}>
+              <DateRangeIcon className={classes.icon} />
+              <Typography variant="subtitle1">
+                {startDate} - {endDate}
+              </Typography>
+            </div>
+          </Grid>
+          <Grid item xs={12} lg={6}>
+            <div className={classes.header}>
+              <BookIcon className={classes.icon} />
+              <Typography variant="subtitle1">Subjects:</Typography>
+            </div>
+            <div>
+              {subjects.map((subject) => (
+                <Chip key={subject} label={subject} className={classes.chip} />
+              ))}
+            </div>
+          </Grid>
+        </Grid>
+      </CardContent>
+    </Card>
+
+
+
+    root: {
+  [theme.breakpoints.up('lg')]: {
+    width: '40%',
+    marginLeft: 'auto',
+    marginRight: 'auto',
+  },
+  backgroundColor: '#f5f5f5',
+  marginBottom: theme.spacing(2),
+  display: 'flex',
+  justifyContent: 'center',
+  alignItems: 'center',
+}
+
+
+
+
+
+
+
+
+
+import React,{useState,useEffect} from 'react';
+import { makeStyles } from '@mui/styles';
+import { Link } from 'react-router-dom';
+import { Card, CardHeader, CardContent, IconButton, Typography, Chip, Grid,  List, ListItem, ListItemText, ListItemAvatar, Avatar, Button} from '@mui/material';
+import EditIcon from '@mui/icons-material/Edit';
+import DeleteIcon from '@mui/icons-material/Delete';
+import DateRangeIcon from '@mui/icons-material/DateRange';
+import BookIcon from '@mui/icons-material/Book';
+import SubjectIcon from '@mui/icons-material/Subject';
+
+const useStyles = makeStyles((theme) => ({
+  root: {
+    maxWidth: 500,
+    margin: 'auto',
+    marginBottom: theme.spacing(2),
+  },
+  header: {
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    paddingBottom: 0,
+  },
+  content: {
+    paddingTop: 0,
+  },
+  chip: {
+    marginRight: theme.spacing(1),
+    marginBottom: theme.spacing(1),
+  },
+  icon: {
+    marginRight: theme.spacing(1),
+  },
+  title: {
+    textAlign: 'center',
+    marginBottom: theme.spacing(2),
+  },
+  avatar: {
+    marginRight: theme.spacing(2),
+  },
+  viewMore: {
+    margin: theme.spacing(2),
+  }
+}));
+
+
+const students = [
+    {
+      name: 'John Doe',
+      imageUrl: 'https://randomuser.me/api/portraits/men/1.jpg',
+      phone: '123-456-7890',
+    },
+    {
+      name: 'Jane Doe',
+      imageUrl: 'https://randomuser.me/api/portraits/women/1.jpg',
+      phone: '123-456-7890',
+    },
+    {
+      name: 'Bob Smith',
+      imageUrl: 'https://randomuser.me/api/portraits/men/2.jpg',
+      phone: '123-456-7890',
+    },
+    {
+      name: 'Samantha Brown',
+      imageUrl: 'https://randomuser.me/api/portraits/women/2.jpg',
+      phone: '123-456-7890',
+    },
+    {
+      name: 'David Johnson',
+      imageUrl: 'https://randomuser.me/api/portraits/men/3.jpg',
+      phone: '123-456-7890',
+    },
+    {
+      name: 'Emily Davis',
+      imageUrl: 'https://randomuser.me/api/portraits/women/3.jpg',
+      phone: '123-456-7890',
+    },
+    {
+      name: 'Michael Wilson',
+      imageUrl: 'https://randomuser.me/api/portraits/men/4.jpg',
+      phone: '123-456-7890',
+    },
+    {
+      name: 'Avery Lee',
+      imageUrl: 'https://randomuser.me/api/portraits/women/4.jpg',
+      phone: '123-456-7890',
+    },
+  ];
+
+const BatchOverview = () => {
+  const classes = useStyles();
+
+  const [name, setName]= useState('FSDB78');
+  const [code, setCode] = useState('#fsdb78');
+  const [course, setCourse] = useState('Web Development');
+  const [startDate, setSatrtDate]= useState('12 May 2022');
+  const [endDate, setEdndDate] = useState('13 Sep 2025')
+  const [subjects, setSubjects]= useState(["Java", "HTML", "CSS"]);
+  
+  return (
+
+    <div style={{backgroundColor: '#f1f1f1', alignItem:'center'}}>
+   
+    <Grid container spacing={2} style={{ width: '50%' }}>
+      <Grid item xs={12} >
+        <Card>
+          <CardHeader title="Card 1" />
+          <CardContent>
+            <Typography variant="body1" color="text.secondary">
+              Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nulla ultricies tempus lectus ac iaculis. Sed facilisis eros nec felis molestie, id ultrices tellus convallis.
+            </Typography>
+          </CardContent>
+        </Card>
+      </Grid>
+      <Grid item xs={12} style={{ width: '70%' }}>
+        <Card>
+          <CardHeader title="Card 2" />
+          <CardContent>
+            <Typography variant="body1" color="text.secondary">
+              Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nulla ultricies tempus lectus ac iaculis. Sed facilisis eros nec felis molestie, id ultrices tellus convallis.
+            </Typography>
+          </CardContent>
+        </Card>
+      </Grid>
+    </Grid> 
+
+    </div>
+  );
+
+};
+
+export default BatchOverview;
