@@ -1,69 +1,23 @@
 import React, { useState, useEffect } from "react";
-import {useParams } from 'react-router-dom';
-
-import { where, collection, getDocs, query,  updateDoc, doc } from "firebase/firestore";
+import {useParams, Outlet, Link} from 'react-router-dom';
+import { where, collection, getDocs, query, orderBy, getDoc, updateDoc, doc } from "firebase/firestore";
 import { db } from '../../firebase';
-
-import { makeStyles } from '@mui/styles';
-import { Card, CardHeader, CardContent, IconButton, Typography,  Container, Tabs, Tab, List, ListItem,
-        ListItemAvatar, Avatar, ListItemText, ListItemSecondaryAction,  Menu, MenuItem, useMediaQuery, Button} from '@mui/material';
-import { useTheme } from '@mui/material/styles';
-import Dialog from '@mui/material/Dialog'
+import { Card, CardContent, Typography, Button } from "@mui/material";
+import { Tabs, Tab, List, ListItem, ListItemAvatar, Avatar, ListItemText, ListItemSecondaryAction, IconButton, Menu, MenuItem } from "@mui/material";
+import { MoreVert } from "@mui/icons-material";
+import CloseIcon from '@mui/icons-material/Close';
+import Dialog from '@mui/material/Dialog';
+import DialogActions from '@mui/material/DialogActions';
 import DialogContent from '@mui/material/DialogContent';
 import DialogTitle from '@mui/material/DialogTitle';
-import { MoreVert, Close, Add } from "@mui/icons-material";
+
+
 import AddStudent from "./AddStudent";
-
-
-
-const useStyles = makeStyles(() => ({
-
-  root: {
-    paddingTop: useTheme().spacing(4),
-    paddingBottom: useTheme().spacing(4),
-    [useTheme().breakpoints.down('sm')]: {
-
-      paddingBottom: useTheme().spacing(8),
-    },
-  },
-
-  card: {
-    width: '100%',
-    [useTheme().breakpoints.down('sm')]: {
-      width: '100%',
-      marginBottom:24,
-    },
-  },
-
-
-  header: {
-    display: 'flex',
-    flexDirection: 'row',
-    alignItems: 'left',
-    justifyContent: 'space-between',
-    paddingBottom: 16,
-    borderBottom: `1px solid ${useTheme().palette.divider}`,
-    marginBottom:0,
-  },
-
-
-  content: {
-    paddingTop: 0,
-    marginTop:0,
-    marginBottom:0,
-    paddingBottom:0
-  },
-
-
-}));
 
 
 function BatchStudents() {
 
     const {id}=useParams();
-    const classes = useStyles();
-    const isSmallScreen = useMediaQuery(useTheme().breakpoints.down('sm'));
-    const [usedColors, setUsedColors] = useState([]);
 
     const [activeTab, setActiveTab] = useState(0);
     const [anchorEl, setAnchorEl] = useState(null);
@@ -137,6 +91,7 @@ function BatchStudents() {
 
   
     const handleDeleteClick = (student) => {
+      // TODO: handle delete student logic
       console.log("Delete student:", student);
       handleOptionMenuClose();
     };
@@ -148,41 +103,21 @@ function BatchStudents() {
       setOpen(false);
     }
 
-    const getRandomColor = () => {
-      const colors = ["#4285F4", "#DB4437", "#F4B400", "#0F9D58", "#34A853", "#EA4335", "#FBBC05", "#4286f4", "#9AA0A6", "#7FDBFF", "#2ECC40", "#FF4136", "#FFDC00"];
-      const availableColors = colors.filter((color) => !usedColors.includes(color));
-      if (availableColors.length === 0) {
-        // all colors have been used, reset the list
-        usedColors.splice(0, usedColors.length);
-        return colors[0];
-      } else {
-        const randomIndex = Math.floor(Math.random() * availableColors.length);
-        const randomColor = availableColors[randomIndex];
-        usedColors.push(randomColor);
-        return randomColor;
-      }
-    };
-
   return (
-
-    <Container maxWidth="lg" className={classes.root}>
-      <Card className={classes.card}>
-
-          <CardHeader sx={{marginBottom:0, paddingBottom:0}}
-              title={
-                <div className={classes.header} >
-                <Typography variant="h5" component="h3">
-                  Students
-                </Typography>
-                <Button onClick={() => setOpen(true)} variant="contained" color="primary" sx={{ ml: 2 }} startIcon={<Add />}>
-                  Add Student
-                </Button>
-              </div>
-              }
-          />
+    <div style={{ margin: "0 20%", display: "flex", justifyContent: "center" , marginTop:'100px'}}>
+      <div>
+      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 16 }}>
+        <Typography variant="h5" component="h3">
+          Students
+        </Typography>
+        <Button onClick={() => setOpen(true)} variant="contained" color="primary" sx={{ ml: 2 }}>
+          Add Student
+        </Button>
+      </div>
+       <Card variant="outlined" style={{ width:'700px' }}>
 
         
-        <CardContent className={classes.content}>
+        <CardContent>
           <Tabs value={activeTab} onChange={handleTabChange}>
             <Tab label={"Active ("+ students.length + ")"} />
             <Tab label={"Inactive ("+ inactiveStudents.length + ")"} />
@@ -192,28 +127,17 @@ function BatchStudents() {
               {students.map((student, index) => ( 
                 <ListItem key={index}>
                   <ListItemAvatar>
-                  <Avatar style={{marginRight:"10px"}} sx={{ bgcolor: getRandomColor()}} >{student.name[0]}</Avatar>
+                  <Avatar style={{marginRight:"10px"}}>{student.name[0]}</Avatar>
+                    {/* <Avatar src={student.avatarUrl} alt={student.name} /> */}
                   </ListItemAvatar>
-
-                  {! isSmallScreen ? (
-                    <>
-                      <ListItemText style={{width:"30%"}} primary={student.name}  />
-                      <ListItemText secondary={student.phone} />
-                    </>
-                  ) : (
-                    <ListItemText
-                    primary={student.name} 
-                    secondary={student.phone}
-                  />
-                  )}
-
+                  <ListItemText style={{width:"30%"}} primary={student.name}  />
+                  <ListItemText secondary={student.phone} />
                   <ListItemSecondaryAction>
                     <IconButton onClick={(event) => handleOptionMenuClick(event, student)}>
                       <MoreVert />
                     </IconButton>
                     <Menu anchorEl={anchorEl} open={Boolean(anchorEl)} onClose={handleOptionMenuClose}>
                       <MenuItem onClick={() => handleInactiveStudents(selectedStudent)}>Make Inactive in Batch</MenuItem>
-                      <MenuItem onClick={() => handleDeleteClick(selectedStudent)}>Edit</MenuItem>
                       <MenuItem onClick={() => handleDeleteClick(selectedStudent)}>Remove from Batch</MenuItem>
                     </Menu>
                   </ListItemSecondaryAction>
@@ -227,20 +151,10 @@ function BatchStudents() {
                 <ListItem key={index}>
                   <ListItemAvatar>
                   <Avatar style={{marginRight:"10px"}}>{student.name[0]}</Avatar>
+                    {/* <Avatar src={student.avatarUrl} alt={student.name} /> */}
                   </ListItemAvatar>
-
-                  {! isSmallScreen ? (
-                    <>
-                      <ListItemText style={{width:"30%"}} primary={student.name}  />
-                      <ListItemText secondary={student.phone} />
-                    </>
-                  ) : (
-                    <ListItemText
-                    primary={student.name} 
-                    secondary={student.phone}
-                  />
-                  )}
-
+                  <ListItemText style={{width:"30%"}} primary={student.name}  />
+                  <ListItemText secondary={student.phone} />
                   <ListItemSecondaryAction>
                     <IconButton onClick={(event) => handleOptionMenuClick(event, student)}>
                       <MoreVert />
@@ -256,8 +170,7 @@ function BatchStudents() {
           )}
         </CardContent>
       </Card>
-
-
+      </div>
 
 
 
@@ -265,11 +178,11 @@ function BatchStudents() {
       <Dialog open={open} onClose={() => setOpen(false)}>
 
       <DialogTitle sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-        <Typography variant="h6" sx={{ flexGrow: 1 }}>
+        <Typography variant="h4" sx={{ flexGrow: 1 }}>
           Add Students
         </Typography>
         <IconButton onClick={() => setOpen(false)}>
-          <Close />
+          <CloseIcon />
         </IconButton>
       </DialogTitle>
 
@@ -284,8 +197,7 @@ function BatchStudents() {
       </Dialog>
 
 
-      
-    </Container>
+    </div>
   );
 }
 

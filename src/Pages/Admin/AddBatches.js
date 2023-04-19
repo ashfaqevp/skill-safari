@@ -44,7 +44,7 @@ import dayjs from 'dayjs';
         event.preventDefault();
 
         console.log(typeof(startDate));
-        console.log(startDate.format('DD MM YYYY'));
+        console.log(startDate.format('YYYY-MM-DD'));
 
         const docRef = doc(db, "batches",code);
         const docSnap = await getDoc(docRef);
@@ -56,26 +56,15 @@ import dayjs from 'dayjs';
             name: name,
             code:code,
             course: course,
-            startingDate : startDate.format('DD MM YYYY'),
-            endingDate : endDate.format('DD MM YYYY'),
+            startingDate : startDate.format('YYYY-MM-DD'),
+            endingDate : endDate.format('YYYY-MM-DD'),
             subjects: tags,
             timestamp: serverTimestamp(),
           });
-            // props.handleSubmitStudent();
+
         }
 
-        // const docRef = await setDoc(doc(db, "batches", code), {
 
-        // const docRef = await addDoc(collection(db, "bs"), {
-        //     name: name,
-        //     code:code,
-        //     course: course,
-        //     startingDate : startDate.format('DD MM YYYY'),
-        //     endingDate : endDate.format('DD MM YYYY'),
-        //     subjects: tags
-
-            // time : Timestamp,
-        //   });
       };
       
 

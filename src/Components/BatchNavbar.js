@@ -69,6 +69,14 @@ const BatchNavbar = (props) => {
           </ListItemIcon>
           <ListItemText primary="Attendance" />
         </ListItem>
+
+        <ListItem button component={NavLink} to={"/batch/" + props.id + "/certificate"} exact activeClassName="Mui-selected">
+          <ListItemIcon>
+            <OverviewIcon />
+          </ListItemIcon>
+          <ListItemText primary="Certificates" />
+        </ListItem>
+
       </List>
     </div>
   );

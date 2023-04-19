@@ -1,23 +1,110 @@
-import React, { useEffect, useState } from 'react';
+import React,{useEffect, useState} from 'react';
 import {Link} from 'react-router-dom'
-import { makeStyles } from '@mui/styles';
-import { Card, CardContent, Typography, Grid, Chip  } from '@mui/material';
+
 import { collection, query, getDocs , getDoc, doc, orderBy} from 'firebase/firestore';
 import { onAuthStateChanged  } from 'firebase/auth';
 import { db, auth} from '../../firebase';
 
-const useStyles = makeStyles((theme) => ({
+import { makeStyles } from '@mui/styles';
+import { useTheme } from '@mui/material/styles';
+import { Box, Grid, Card, Chip, Typography, Divider, TextField, InputAdornment, Avatar} from '@mui/material';
+import SearchIcon from '@mui/icons-material/Search';
+import CircularProgress from '@mui/material/CircularProgress';
+
+
+const useStyles = makeStyles(() => ({
+  
   root: {
     flexGrow: 1,
-    
+    padding: '75px 120px',
+    backgroundColor: '#F5F5F5',
+    fontFamily: 'Montserrat',   
+    [useTheme().breakpoints.down('sm')]: {
+      padding: '32px',
+    },
   },
+
+  batchBox: {
+    display: 'flex',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: '16px',
+  },
+
+  filterBox: {
+    display: 'flex',
+    alignItems: 'center',
+    [useTheme().breakpoints.down('sm')]: {
+      padding : '10px',
+    },
+  },
+
+  filterInput: {
+    marginRight: '16px',
+  },
+
+  heading: {
+    fontWeight: 'bold',
+    fontSize: '1rem', // decrease font size
+    fontFamily: "'Montserrat', sans-serif",
+    marginBottom: '12px'
+  },
+
+  text: {
+    fontSize: '12px',
+    color: '#888',
+    fontWeight: 600,
+  },
+
+
+  content: {
+    paddingLeft:'24px',
+    paddingRight:'24px',
+  },
+
+
+  avatarContainer: {
+    padding:'12px',
+    paddingLeft:'24px',
+    paddingRight:'24px',
+    display: 'flex',
+    flexDirection:'row',
+    alignItems: 'left',
+  },
+
+
+
+  card: {
+    width: '250px',
+    height: '175px',
+    marginRight: '8px',
+    marginTop: '8px',
+    display: "flex",
+    flexDirection:"column",
+    justifyContent: 'space-between',
+    fontFamily: "'Montserrat', sans-serif",  
+    textDecoration: 'none',
+    color: 'inherit',
+    [useTheme().breakpoints.down('sm')]: {
+      width: '100%',
+    },
+    transition: 'transform 0.2s ease-in-out',
+    '&:hover': {
+      transform: 'translateY(-5px)',
+    },
+  },
+
 }));
 
-function AllBatches() {
 
+
+
+const AllBatches = () => {
   const classes = useStyles();
-  
 
+  const [usedColors, setUsedColors] = useState([]);
+  const [isLoading, setIsLoading] = useState(true);
+  
   const [userBatches, setUserBatches] = useState({});
   const [userPhone, setUserPhone] = useState("")
   const [batches, setBatches] = useState([]);
@@ -33,6 +120,7 @@ function AllBatches() {
 
   useEffect(() => {
     async function fetchData() {
+    setIsLoading(true);
     const docRef = doc(db, 'trainers', userPhone);
     const docSnap = await getDoc(docRef);
       if (docSnap.exists()) {
@@ -45,64 +133,164 @@ function AllBatches() {
     fetchData();  
   }, [userPhone]);
 
- 
 
+
+
+  
   useEffect(() => {
 
     const fetchData = async () => {
       const q = query(collection(db, 'batches'), orderBy('timestamp', 'desc'));
       const querySnapshot = await getDocs(q);
-      const data = querySnapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() }));
-      console.log(data[1].code)
+      const batchesData = [];
+      
+      for (const doc of querySnapshot.docs) {
+        const batchData = { id: doc.id, name: doc.data().name,course: doc.data().course, code:doc.data().code,  subjects: doc.data().subjects, students: [] };
+        
+        const studentsQuery = query(collection(db, "batches", batchData.id, "students" ));
+        const studentsSnapshot = await getDocs(studentsQuery);
+        studentsSnapshot.forEach((studentDoc) => {
+          batchData.students.push({
+            id: studentDoc.id,
+            name: studentDoc.data().name,
+          });
+        });
+        
+        batchesData.push(batchData);
+      }
+    
 
-      const filteredData = data.filter((item) => (
+      const filteredData = batchesData.filter((item) => (
         userBatches.includes(item.code)
       ));
       
       console.log(filteredData);
+
+
       setBatches(filteredData);
+      setIsLoading(false);
 
     };
     fetchData();
   }, [userBatches]);
 
 
+  const getRandomColor = () => {
+    const colors = ["#4285F4", "#DB4437", "#F4B400", "#0F9D58", "#34A853", "#EA4335", "#FBBC05", "#4286f4", "#9AA0A6", "#7FDBFF", "#2ECC40", "#FF4136", "#FFDC00"];
+    const availableColors = colors.filter((color) => !usedColors.includes(color));
+    if (availableColors.length === 0) {
+      // all colors have been used, reset the list
+      usedColors.splice(0, usedColors.length);
+      return colors[0];
+    } else {
+      const randomIndex = Math.floor(Math.random() * availableColors.length);
+      const randomColor = availableColors[randomIndex];
+      usedColors.push(randomColor);
+      return randomColor;
+    }
+  };
 
 
   return (
+    <div className={classes.root}>
 
-    <div className={ "container"}>
+      {isLoading ? (
+              <CircularProgress />
+            ) : (
 
-  
+              <div>
 
-    <Grid container spacing={3}>
-    {batches.map((batch, index) => (
+      <Box className={classes.batchBox}>
+
+        <Typography variant="h6"><b>Batches ({batches.length})</b></Typography>
+
+        <Box className={classes.filterBox}>
+        <TextField
+        id="input-with-icon-textfield"
+        size="small"
+        className={classes.filterInput} 
+        sx={{width:'150px'}}
+        InputProps={{
+          startAdornment: (
+            <InputAdornment position="start">
+               <SearchIcon />
+            </InputAdornment>
+          ),
+        }}
+        variant="standard"
+      />
+
+        </Box>
+
+      </Box>
+      <Divider style={{ marginBottom: '30px' }} />
+
+
+
+
+    <Grid container spacing={4}>
+      {batches.map((batch, index) => (
         <Grid item xs={12} sm={6} md={3} key={index}>
 
-          <Link to={`/batch/${batch.code}`}>
-            <Card>
-              <CardContent>
-              <Typography variant="h5">{batch.name}</Typography>
-                <Typography color="textSecondary">
-                {batch.course}
-                </Typography>
-                {/* <Typography color="textSecondary">
-                {batch.subjects}
-                </Typography> */}
-                {batch.subjects.map((tag) => (
-                  <Chip key={tag} label={tag} />
-                ))}
-              </CardContent>
-            </Card>
-          </Link>
-        </Grid>
-      ))}
+
+
+
+      <Card component={Link} to={`/batch/${batch.code}`} key={batch.code} className={classes.card}>
+
+          <div className={classes.content} >
+            <p className={classes.header} ><b>{batch.name}</b></p>
+
+            <p className={classes.text} >{batch.course}</p>
+
+            {batch.subjects.slice(0, 3).map((tag) => (
+                  <Chip key={tag} label={tag} size="small" style={{marginRight:'5px'}}  sx={{fontSize:10}}/>
+            ))}
+
+          </div>
+
+
+
+
+
+          {batch.students.length > 0? (
+          <div className={classes.avatarContainer}>
+
+            <div style={{ position: 'relative' , background:'#fafafa', }} >
+              {batch.students.slice(0, 3).map((student, index) => (
+                <Avatar sx={{ bgcolor: getRandomColor(), width: 35, height: 35, fontSize:18,
+                  position: 'absolute',
+                   left: `${index * 30}px`,
+                   zIndex: `${batch.students.length - index }`,
+                }}
+                  key={student.name}
+                  className={classes.avatar}
+                >
+                  {student.name.charAt(0)}
+                </Avatar>
+              ))}
+            </div>
+            
+             <p className={classes.text} style={{marginLeft: "100px"}}>
+              {batch.students.length} students
+            </p>
+
+            </div>
+
+      ):(<div className={classes.avatarContainer}><p className={classes.text} >No Students</p></div>)}
+
+ 
+      </Card>
     </Grid>
-  </div>
+  ))}
+</Grid>
 
-
-
+</div>
+            )}
+    </div>
   );
 }
 
 export default AllBatches;
+
+
+

@@ -35,7 +35,7 @@ const useStyles = makeStyles(() => ({
 
 
 
-const BatchAttendance = () => {
+const Page = () => {
 
   const {id}=useParams();
   const navigate = useNavigate();
@@ -105,17 +105,17 @@ const BatchAttendance = () => {
     }, []);
 
 
-    useEffect(() => {
-      const fetchData = async () => {
-        const studentsRef = collection(db, "batches", id, "students");
-        const studentsSnap = await getDocs(studentsRef);
-        const count = studentsSnap.size;
-        setStudCount(count);
-        console.log("Number of students:", count);
-      };
+    // useEffect(() => {
+    //   const fetchData = async () => {
+    //     const studentsRef = collection(db, "batches", id, "students");
+    //     const studentsSnap = await getDocs(studentsRef);
+    //     const count = studentsSnap.size;
+    //     setStudCount(count);
+    //     console.log("Number of students:", count);
+    //   };
   
-      fetchData();
-    }, []);
+    //   fetchData();
+    // }, []);
   
   
     const shouldDisableDate = (day) => {
@@ -169,8 +169,8 @@ const BatchAttendance = () => {
         <Grid item xs={12} md={6}>
           {/* <Paper className={`${classes.paper} ${classes.datepicker}`}> 
               */}
-              <Card>
-             <CardContent className={classes.content}>
+              {/* <Card>
+             <CardContent > */}
             <LocalizationProvider dateAdapter={AdapterDayjs}>
               <DateCalendar value={value} onChange={(newValue) => setValue(newValue)} 
 
@@ -180,8 +180,8 @@ const BatchAttendance = () => {
               />
             </LocalizationProvider>
           {/* </Paper> */}
-          </CardContent> 
-          </Card>
+          {/* </CardContent> 
+          </Card> */}
         </Grid>
         
       </Grid>
@@ -190,4 +190,4 @@ const BatchAttendance = () => {
   );
 };
 
-export default BatchAttendance;
+export default Page;

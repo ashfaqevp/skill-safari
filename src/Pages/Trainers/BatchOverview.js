@@ -1,82 +1,83 @@
-import React,{useState,useEffect} from 'react';
-import { makeStyles } from '@mui/styles';
-import { Link, useParams } from 'react-router-dom';
-import { where, collection, getDocs, query, orderBy, getDoc, updateDoc, doc } from "firebase/firestore";
+import React,{useEffect, useState} from "react";
+import { useParams, Link } from 'react-router-dom';
+
+import { where, collection, getDocs, query, doc, getDoc } from "firebase/firestore";
 import { db } from '../../firebase';
-import { Card, CardHeader, CardContent, IconButton, Typography, Chip, Grid,  List, ListItem, ListItemText, ListItemAvatar, Avatar, Button} from '@mui/material';
+
+import { useTheme } from '@mui/material/styles';
+import { makeStyles } from '@mui/styles';
+import { Card, CardHeader, CardContent, IconButton, Typography, Chip,  List, ListItem, ListItemText, ListItemAvatar, Avatar, ListItemIcon, Container, Grid} from '@mui/material';
+
+import { Book, DateRange} from "@mui/icons-material";
 import EditIcon from '@mui/icons-material/Edit';
 import DeleteIcon from '@mui/icons-material/Delete';
-import DateRangeIcon from '@mui/icons-material/DateRange';
-import BookIcon from '@mui/icons-material/Book';
-import SubjectIcon from '@mui/icons-material/Subject';
 
-const useStyles = makeStyles((theme) => ({
+
+const useStyles = makeStyles(() => ({
 
   root: {
-    [theme.breakpoints.up('lg')]: {
-      width: '40%',
-      marginLeft: 'auto',
-      marginRight: 'auto',
+    paddingTop: useTheme().spacing(4),
+    paddingBottom: useTheme().spacing(4),
+  },
+
+
+  container: {
+    paddingTop:8,
+    [useTheme().breakpoints.down('sm')]: {
+      paddingTop:2,
     },
-    backgroundColor: '#f5f5f5',
-    marginBottom: theme.spacing(2),
-    // display: 'flex',
-    justifyContent: 'center',
-    alignItems: 'center',
   },
 
-
-  classa: {
-    margin: 'auto',
-    marginBottom: theme.spacing(2),
-    display: 'inline',
-    // displayDirection:'column'
-  },
   
-
-  header: {
+  listItem: {
+    margin: useTheme().spacing(1),
     display: 'flex',
     alignItems: 'center',
-    justifyContent: 'space-between',
-    paddingBottom: 0,
+    justifyContent: 'center',
+    textAlign: 'center',
   },
+
+
+    header: {
+    display: 'flex',
+    flexDirection: 'row',
+    alignItems: 'left',
+    justifyContent: 'space-between',
+    paddingBottom: 12,
+    borderBottom: `1px solid ${useTheme().palette.divider}`,
+    marginBottom:0,
+  },
+
+
   content: {
     paddingTop: 0,
+    marginTop:0,
+    marginBottom:0,
+    paddingBottom:0
   },
-  chip: {
-    marginRight: theme.spacing(1),
-    marginBottom: theme.spacing(1),
-  },
-  icon: {
-    marginRight: theme.spacing(1),
-  },
-  title: {
-    textAlign: 'center',
-    marginBottom: theme.spacing(2),
-  },
-  avatar: {
-    marginRight: theme.spacing(2),
-  },
-  viewMore: {
-    margin: theme.spacing(2),
-  }
-}));
 
+  studlist : {
+    borderBottom: `1px solid ${useTheme().palette.divider}`,
+  }
+
+}));
 
 
 
 const BatchOverview = () => {
 
+  const classes = useStyles();
   const {id}=useParams();
 
-  const classes = useStyles();
-
+  const [usedColors, setUsedColors] = useState([]);
   const [students, setStudents] = useState([]);
   const [batchData, setBatchData] = useState({});
+  const [batchSubjects, setBatchSubjects] = useState([]);
 
   useEffect(() => {
     fetchData();
     fetchStudentsData();
+
   }, []);
 
   const fetchData = async () => {
@@ -84,7 +85,8 @@ const BatchOverview = () => {
     const docSnap = await getDoc(docRef);
     if (docSnap.exists()) {
       setBatchData(docSnap.data());
-    } else {
+      setBatchSubjects(docSnap.data().subjects)
+    
       console.log('No such document!');
     }
   };
@@ -98,85 +100,205 @@ const BatchOverview = () => {
   };
 
   
-  return (
+  const getRandomColor = () => {
+    const colors = ["#4285F4", "#DB4437", "#F4B400", "#0F9D58", "#34A853", "#EA4335", "#FBBC05", "#4286f4", "#9AA0A6", "#7FDBFF", "#2ECC40", "#FF4136", "#FFDC00"];
+    const availableColors = colors.filter((color) => !usedColors.includes(color));
+    if (availableColors.length === 0) {
+      // all colors have been used, reset the list
+      usedColors.splice(0, usedColors.length);
+      return colors[0];
+    } else {
+      const randomIndex = Math.floor(Math.random() * availableColors.length);
+      const randomColor = availableColors[randomIndex];
+      usedColors.push(randomColor);
+      return randomColor;
+    }
+  };
 
-    <div style={{backgroundColor: '#f1f1f1' }}>
-   
-   <Grid container spacing={2}>
-      <Grid item xs={12}>
-    <Card className={[classes.root, classes.carda]}>
-        <CardHeader
-        title={
-          <div className={classes.header}>
-            <Typography variant="h6">{batchData.name}</Typography>
-            <div>
-              <IconButton aria-label="edit">
-                <EditIcon />
-              </IconButton>
-              <IconButton aria-label="delete">
-                <DeleteIcon />
-              </IconButton>
-            </div>
-          </div>
-        }
-      />
-      <CardContent className={classes.content}>
-        <Grid container spacing={2}>
-          <Grid item xs={12} lg={6}>
-            <Typography variant="subtitle1" gutterBottom>
-              Batch Code: {batchData.code}
-            </Typography>
-          </Grid>
-          <Grid item xs={12} lg={6}>
-            <Typography variant="subtitle1" gutterBottom>
-              Course Name: {batchData.course}
-            </Typography>
-          </Grid>
-          <Grid item xs={12} lg={6}>
-            <div className={classes.header}>
-              <DateRangeIcon className={classes.icon} />
-              <Typography variant="subtitle1">
-                {batchData.startingDate} - {batchData.endingDate}
-              </Typography>
-            </div>
-          </Grid>
-          <Grid item xs={12} lg={6}>
-            <div className={classes.header}>
-              <BookIcon className={classes.icon} />
-              <Typography variant="subtitle1">Subjects:</Typography>
-            </div>
-            <div>
-              {/* { batchData.subjects.map((subject) => (
-                <Chip key={subject} label={subject} className={classes.chip} />
-              ))} */}
-            </div>
+  return (
+    <Container maxWidth="lg" className={classes.root}>
+
+      <Grid container spacing={6}>
+
+        <Grid item xs={12} md={6}>
+          <Grid container spacing={6}>
+            <Grid item xs={12}>
+
+              <Card>
+                <CardHeader
+                  title={
+                    <div className={classes.header}>
+                      <Typography variant="h6">{batchData.name}</Typography>
+                      <div>
+                        <IconButton aria-label="edit">
+                          <EditIcon />
+                        </IconButton>
+                        <IconButton aria-label="delete">
+                          <DeleteIcon />
+                        </IconButton>
+                      </div>
+                    </div>
+                  }
+                />
+
+                <CardContent className={classes.content}>
+                
+                <Grid container spacing={0} className={classes.gridContainer}>
+                <Grid item xs={12} md={6}>
+                  <List>
+        
+                        <ListItem className={classes.listItem}>
+                          <ListItemIcon>
+                             < Book  />
+                          </ListItemIcon>
+                          <ListItemText
+                          
+                            secondary={
+                              <Typography variant="body2" color="textSecondary">
+                                {"Batch Code"}
+                              </Typography>
+                            }
+                          primary={
+                              <Typography variant="h8">
+                                {batchData.code}
+                              </Typography>
+                            }
+                          />
+                        </ListItem>
+        
+        
+                        <ListItem className={classes.listItem}>
+                          <ListItemIcon>
+                             < DateRange  />
+                          </ListItemIcon>
+                          <ListItemText
+                            secondary={
+                              <Typography variant="body2" color="textSecondary">
+                                {"Start Date"}
+                              </Typography>
+                            }
+                          primary={
+                              <Typography variant="h8">
+                                {batchData.startingDate}
+                              </Typography>
+                            }
+                          />
+                        </ListItem>
+        
+        
+        
+                  </List>
+                </Grid>
+                <Grid item xs={12} md={6}>
+                  <List>
+        
+                       <ListItem className={classes.listItem}>
+                            <ListItemIcon>
+                              < Book  />
+                            </ListItemIcon>
+                            <ListItemText
+                              secondary={
+                                <Typography variant="body2" color="textSecondary">
+                                  {"Course"}
+                                </Typography>
+                              }
+                            primary={
+                                <Typography variant="h8">
+                                  {batchData.course}
+                                </Typography>
+                              }
+                            />
+                          </ListItem>
+        
+        
+                          <ListItem className={classes.listItem}>
+                          <ListItemIcon>
+                             < DateRange  />
+                          </ListItemIcon>
+
+                          <ListItemText
+                            secondary={
+                              <Typography variant="body2" color="textSecondary">
+                                {"End Date"}
+                              </Typography>
+                            }
+                          primary={
+                              <Typography variant="h8">
+                                {batchData.endingDate}
+                              </Typography>
+                            }
+                          />
+                        </ListItem>
+        
+                  
+                  </List>
+                </Grid>
+              </Grid>
+                </CardContent>
+              </Card>
+
+
+            </Grid>
+            <Grid item xs={12}>
+              <Card>
+                <CardHeader
+                    title={
+                      <div className={classes.header}>
+                        <Typography variant="h6">{"Subjects"}</Typography>
+                      </div>
+                    }
+                  />
+
+
+                  <CardContent className={classes.content}>
+                    <div>
+                      { batchSubjects.map((subject) => (
+                        <Chip sx={{marginLeft:'5px', marginBottom:'5px'}} key={subject} label={subject} className={classes.chip} />
+                      ))}
+                    </div>
+                </CardContent>
+              </Card>
+
+            </Grid>
           </Grid>
         </Grid>
-      </CardContent>
-        </Card>
-      </Grid>
-      <Grid item xs={12}>
-      <Card className={classes.root}>
-    <Typography variant="h5" className={classes.title}>Students</Typography>
-    <List>
-      {students.map((student, index) => (
-        <ListItem key={index}>
-          <ListItemAvatar>
-            <Avatar className={classes.avatar}>{student.name[0]}</Avatar>
-          </ListItemAvatar>
-          <ListItemText style={{width:"30%"}} primary={student.name}  />
-          <ListItemText secondary={student.phone} />
-        </ListItem>
-      ))}
-    </List>
-    <Button variant="contained" color="primary" className={classes.viewMore}>View More</Button>
-  </Card>
-      </Grid>
-    </Grid> 
 
-    </div>
+
+        <Grid item xs={12} md={6}>
+         <Card sx={{marginBottom:10}} >
+          <CardHeader
+                  title={
+                    <div className={classes.header}>
+                      <Typography variant="h6">Students ({students.length})</Typography>
+
+                    </div>
+                  }
+                />
+                <CardContent className={classes.content}>
+
+                  <List className={classes.studlist}>
+                  {students.slice(0, 5).map((student, index) => (
+                    <ListItem key={index}>
+                      <ListItemAvatar>
+                        <Avatar className={classes.avatar} sx={{ bgcolor: getRandomColor()}} >
+                          {student.name[0]}</Avatar>
+                      </ListItemAvatar>
+                      <ListItemText style={{width:"30%"}} primary={student.name}  />
+                      <ListItemText secondary={student.phone} />
+                    </ListItem>
+                  ))}
+                </List>
+
+                  <Link style={{textAlign:"center", color:"blue", marginBottom:0, paddingBottom:0}} to={"/batch/" + id + "/students"} ><h4>Show More</h4></Link>
+
+            </CardContent>
+          </Card>
+        </Grid>
+
+        
+      </Grid>
+    </Container>
   );
-
 };
 
 export default BatchOverview;

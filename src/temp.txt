@@ -1,3 +1,1250 @@
+import React,{useState , useEffect , useRef} from 'react';
+import {useParams, Outlet, Link} from 'react-router-dom';
+import BatchNavbar from '../../Components/BatchNavbar'
+import Test from './Test'
+
+const Batch = () => { 
+    return(
+      
+        <>
+          <Test/> 
+        </>
+      
+    )
+}
+
+export default Batch;
+
+
+
+
+
+
+
+
+
+import {  useLocation, useParams } from 'react-router-dom';
+
+import { makeStyles } from '@mui/styles';
+import { useTheme } from '@mui/material/styles';
+import { Link, NavLink, Outlet } from 'react-router-dom';
+import { Box, List, ListItem, ListItemIcon, ListItemText } from '@mui/material';
+import { Container, useMediaQuery, BottomNavigation, BottomNavigationAction } from "@mui/material";
+
+import OverviewIcon from '@mui/icons-material/Dashboard';
+import StudentsIcon from '@mui/icons-material/People';
+import AttendanceIcon from '@mui/icons-material/EventNote';
+import CertificatesIcon from '@mui/icons-material/CardMembership';
+
+
+const drawerWidth = 245;
+
+const useStyles = makeStyles(() => ({
+  root: {
+    display: 'flex',
+    flexDirection: 'row',
+    height: '100vh',
+    overflow: 'hidden',
+  },
+  sidebar: {
+    // display:'inline',
+    backgroundColor: '#FFFFFF',
+    borderRight: `1px solid ${useTheme().palette.divider}`,
+    width: drawerWidth,
+    padding: useTheme().spacing(2),
+
+    [useTheme().breakpoints.down('sm')]: {
+      display: 'none',
+    },
+  },
+
+  bottom: {
+
+    borderRadius:'12px 12px 0px 0px',
+    borderTop: `1px solid ${useTheme().palette.divider}`,
+  },
+
+  active: {
+    color: useTheme().palette.primary.main,
+  },
+
+
+  listItem: {
+    marginBottom: useTheme().spacing(3),
+  },
+
+  activeLink: {
+    color: 'red', 
+  },
+
+
+  content: {
+    flexGrow: 1,
+    backgroundColor: '#F5F5F5',
+    padding: useTheme().spacing(3),
+    width: `calc(96vw - ${drawerWidth}px)`,
+    [useTheme().breakpoints.down('sm')]: {
+      width:"100%",
+    },
+  },
+}));
+
+
+function Batch() {
+
+  const classes = useStyles();
+  const location = useLocation();
+  const {id}=useParams();
+
+  // const match = useRouteMatch('/:page/:id?');
+  // const currentPage = match ? match.params.page : '';
+
+
+  const isSmallScreen = useMediaQuery(useTheme().breakpoints.down('sm'));
+
+  return (
+    <div style={{padding:0, margin:0}}>
+
+    <div className={classes.root} style={{padding:0, margin:0}} >
+
+
+      <Box className={classes.sidebar}>
+        <List>
+
+          <ListItem button component={NavLink} to={"/batch/" + id + "/overview"} 
+          className={classes.listItem}
+          activeClassName={classes.activeLink}
+          sx={{ color: location.pathname  === '/xc' ? 'primary.main' : 'text.secondary' }} >
+            <ListItemIcon>
+              <OverviewIcon sx={{ color: location.pathname === "/batch/" + id + "/overview" ? 'blue' : 'text.secondary' }} />
+            </ListItemIcon>
+            <ListItemText primary="Overview" />
+          </ListItem>
+
+          <ListItem button component={NavLink} to={"/batch/" + id + "/students"} 
+           className={classes.listItem}
+          activeClassName={classes.activeLink}
+          sx={{ color: location.pathname  === '/xc' ? 'primary.main' : 'text.secondary' }}>
+            <ListItemIcon>
+              <StudentsIcon sx={{ color: location.pathname === "/batch/" + id + "/students" ? 'blue' : 'text.secondary' }} />
+            </ListItemIcon>
+            <ListItemText primary="Students" />
+          </ListItem>
+
+          <ListItem button component={NavLink} to={"/batch/" + id + "/attendance"} 
+           className={classes.listItem}
+            sx={{ color: location.pathname  === '/xc' ? 'primary.main' : 'text.secondary' }}>
+            <ListItemIcon>
+              <AttendanceIcon sx={{ color: location.pathname === "/batch/" + id + "/attendance" ? 'blue' : 'text.secondary' }} />
+            </ListItemIcon>
+            <ListItemText primary="Attendance" sx={{fontWeight: 900}} />
+          </ListItem>
+
+
+          <ListItem button component={NavLink} to={"/batch/" + id + "/certificate"} 
+           className={classes.listItem}
+           sx={{ color: location.pathname === '/test' ? 'primary.main' : 'text.secondary' , fontWeight: location.pathname === '/test' ? 'bold' : 'normal' }}>
+            <ListItemIcon>
+              <CertificatesIcon sx={{ color: location.pathname === "/batch/" + id + "/certificate" ? 'blue' : 'text.secondary' }} />
+            </ListItemIcon>
+            <ListItemText primary="Certificates" />
+          </ListItem>
+
+
+        </List>
+      </Box>
+
+
+      <Box className={classes.content}>
+        <Outlet/>
+      </Box>
+    </div>
+
+    {isSmallScreen ? (
+      <BottomNavigation className={classes.bottom} sx={{ position: { xs: "fixed", sm:"fixed", md: "static" }, bottom: 0, width: "100%" }}>
+      
+      <BottomNavigationAction label="Overview" icon={<OverviewIcon />} showLabel={true} 
+      component={NavLink}
+      to={"/batch/" + id + "/overview"}
+      sx={{ color: location.pathname  === "/batch/" + id + "/overview" ? 'primary.main' : 'text.secondary' }}
+      activeClassName={classes.active} />
+
+      <BottomNavigationAction label="Students" icon={<StudentsIcon />} showLabel={true} 
+      component={NavLink}
+      to={"/batch/" + id + "/students"}
+      sx={{ color: location.pathname  === "/batch/" + id + "/students" ? 'primary.main' : 'text.secondary' }}
+      activeClassName={classes.active}/>
+
+      <BottomNavigationAction label="Attendance" icon={<AttendanceIcon />} showLabel={true}
+      component={NavLink}
+      to={"/batch/" + id + "/attendance"}
+      sx={{ color: location.pathname === "/batch/" + id + "/attendance" ? 'primary.main' : 'text.secondary'  }} />
+
+      <BottomNavigationAction label="Certificates" icon={<CertificatesIcon />} showLabel={true}
+      component={NavLink}
+      to={"/batch/" + id + "/certificate"}
+      sx={{ color: location.pathname === "/batch/" + id + "/certificate" ? 'primary.main' : 'text.secondary'  }} />
+      
+
+  </BottomNavigation>
+
+  
+ 
+
+    ):console.log("smallScreen")}
+
+
+     </div>
+  );
+}
+
+export default Batch;
+
+
+
+
+
+
+
+
+
+
+
+
+
+  <BottomNavigation sx={{ position: { xs: "fixed", sm:"fixed", md: "static" }, bottom: 0, width: "100%" }}>
+    <BottomNavigationAction label="Home" icon={<InboxIcon />} />
+    <BottomNavigationAction label="Search" icon={<MailIcon />} />
+    <BottomNavigationAction label="Profile" icon={<MailIcon />} />
+  </BottomNavigation>
+          
+          
+          
+          <BottomNavigation sx={{ position: { xs: "fixed", md: "static" }, bottom: 0, width: "100%" }}>
+        <BottomNavigationAction label="Home" icon={<HomeOutlined />} />
+        <BottomNavigationAction label="Search" icon={<SearchOutlined />} />
+        <BottomNavigationAction label="Profile" icon={<PersonOutlined />} />
+      </BottomNavigation>
+         
+         import { Container, Grid, BottomNavigation, BottomNavigationAction } from "@mui/material";
+         
+          {/* <div className={classes.avatarContainer}>
+
+            <div style={{ position: 'relative' , background:'#fafafa', }} >
+              {batch.students.slice(0, 3).map((student, index) => (
+                <Avatar sx={{ bgcolor: getRandomColor(), width: 35, height: 35, fontSize:18,
+                  position: 'absolute',
+                   left: `${index * 30}px`,
+                   zIndex: `${batch.students.length - index }`,
+                }}
+                  key={student.name}
+                  className={classes.avatar}
+                >
+                  {student.name.charAt(0)}
+                </Avatar>
+              ))}
+            </div>
+            
+             <p className={classes.text} style={{marginLeft: "100px"}}>
+              {batch.students.length} students
+            </p>
+
+            </div> */}
+
+
+
+import React from 'react';
+import { Link, NavLink } from 'react-router-dom';
+
+import { Box, Container, List, ListItem, ListItemIcon, ListItemText, Typography } from '@mui/material';
+import { Home, People, EventNote, CardMembership } from '@mui/icons-material';
+import { makeStyles } from '@mui/styles';
+import { useTheme } from '@mui/material/styles';
+
+import Navbar from '../../Components/Navbar';
+
+const useStyles = makeStyles(() => ({
+  activeNavLink: {
+    color: useTheme().palette.primary.main,
+    '& .MuiListItemIcon-root': {
+      color: useTheme().palette.primary.main,
+    },
+    borderBottom: `3px solid ${useTheme().palette.primary.main}`,
+    fontWeight: 'bold',
+  },
+  navLink: {
+    fontFamily: "'Montserrat', sans-serif",
+    fontWeight: 'bold',
+    textDecoration: 'none',
+    display: 'flex',
+    alignItems: 'center',
+    marginBottom: '10px',
+    paddingLeft: '20px',
+    paddingRight: '20px',
+    borderRadius: '5px',
+    '& .MuiListItemIcon-root': {
+      marginRight: '8px',
+    },
+    '& .MuiListItemText-root': {
+      paddingRight: '0px',
+      color: 'black',
+    },
+    '&:hover': {
+      backgroundColor: '#f5f5f5',
+    },
+  },
+}));
+
+const Page = () => {
+
+  const classes = useStyles();
+  
+  return (
+    <Box sx={{ display: 'flex', flexDirection: 'column', height: '100vh' }}>
+    {/* Header */}
+    <Box sx={{ flexGrow: 0, position: 'relative', zIndex: 2 }}>
+      <Navbar />
+    </Box>
+  
+    {/* Main content */}
+    <Box sx={{ flexGrow: 1, display: 'flex', position: 'relative', zIndex: 1 }}>
+      {/* Left side box with list */}
+      <Box sx={{ flexBasis: { xs: '0', md: '240px' }, backgroundColor: '#fff', borderRight: '1px solid #ccc', paddingTop: '30px', display: { xs: 'none', md: 'block' } }}>
+        <NavLink to="/test" exact activeClassName={classes.activeNavLink} className={classes.navLink}>
+          <ListItem button>
+            <ListItemIcon><Home /></ListItemIcon>
+            <ListItemText primary="Overview" />
+          </ListItem>
+        </NavLink>
+        <NavLink to="/students" activeClassName={classes.activeNavLink} className={classes.navLink}>
+          <ListItem button>
+            <ListItemIcon><People /></ListItemIcon>
+            <ListItemText primary="Students" />
+          </ListItem>
+        </NavLink>
+        <NavLink to="/attendance" activeClassName={classes.activeNavLink} className={classes.navLink}>
+          <ListItem button>
+            <ListItemIcon><EventNote /></ListItemIcon>
+            <ListItemText primary="Attendance" />
+          </ListItem>
+        </NavLink>
+      </Box>
+  
+      {/* Bottom navigation bar with icons */}
+      <Box sx={{ display: { xs: 'flex', md: 'none' }, flexDirection: 'row', justifyContent: 'space-between', padding: '10px', borderTop: '1px solid #ccc' }}>
+        <NavLink to="/test" exact activeClassName={classes.activeNavLink} className={classes.navLink}>
+          <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+            <Home />
+            <Typography variant="caption">Overview</Typography>
+          </Box>
+        </NavLink>
+        <NavLink to="/students" activeClassName={classes.activeNavLink} className={classes.navLink}>
+          <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+            <People />
+            <Typography variant="caption">Students</Typography>
+          </Box>
+        </NavLink>
+        <NavLink to="/attendance" activeClassName={classes.activeNavLink} className={classes.navLink}>
+          <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+            <EventNote />
+            <Typography variant="caption">Attendance</Typography>
+          </Box>
+        </NavLink>
+      </Box>
+    </Box>
+  </Box>
+  );
+};
+
+export default Page;
+
+
+
+
+
+
+
+
+
+
+
+import React from 'react';
+import { Link, NavLink } from 'react-router-dom';
+
+import { Box, Container, List, ListItem, ListItemIcon, ListItemText, Typography } from '@mui/material';
+import { Home, People, EventNote, CardMembership } from '@mui/icons-material';
+import { makeStyles } from '@mui/styles';
+import { useTheme } from '@mui/material/styles';
+
+import Navbar from '../../Components/Navbar';
+
+const useStyles = makeStyles(() => ({
+  activeNavLink: {
+    color: useTheme().palette.primary.main,
+    '& .MuiListItemIcon-root': {
+      color: useTheme().palette.primary.main,
+    },
+    borderBottom: `3px solid ${useTheme().palette.primary.main}`,
+    fontWeight: 'bold',
+  },
+  navLink: {
+    fontFamily: "'Montserrat', sans-serif",
+    fontWeight: 'bold',
+    textDecoration: 'none',
+    display: 'flex',
+    alignItems: 'center',
+    marginBottom: '10px',
+    paddingLeft: '20px',
+    paddingRight: '20px',
+    borderRadius: '5px',
+    '& .MuiListItemIcon-root': {
+      marginRight: '0px',
+    },
+    '& .MuiListItemText-root': {
+      paddingRight: '0px',
+    },
+    '&:hover': {
+      backgroundColor: '#f5f5f5',
+    },
+  },
+  bottomNav: {
+    position: 'fixed',
+    bottom: 0,
+    left: 0,
+    width: '100%',
+    backgroundColor: '#fff',
+    zIndex: 3,
+    borderTop: '1px solid #ccc',
+    display: 'flex',
+    justifyContent: 'space-between',
+    padding: '8px',
+  },
+  bottomNavLink: {
+    display: 'flex',
+    flexDirection: 'column',
+    alignItems: 'center',
+    textDecoration: 'none',
+    color: '#666',
+    fontWeight: 'bold',
+    '&.active': {
+      color: useTheme().palette.primary.main,
+    },
+    '&:hover': {
+      color: useTheme().palette.primary.main,
+    },
+  },
+  bottomNavIcon: {
+    marginBottom: '4px',
+  },
+}));
+
+
+const Page = () => {
+
+  const classes = useStyles();
+  
+  return (
+    <Box sx={{ display: 'flex', flexDirection: 'column', height: '100vh' }}>
+    {/* Header */}
+    <Box sx={{ flexGrow: 0, position: 'relative', zIndex: 2 }}>
+      <Navbar />
+    </Box>
+  
+    {/* Main content */}
+    <Box sx={{ flexGrow: 1, display: 'flex', position: 'relative', zIndex: 1 }}>
+      {/* Left side box with list */}
+      <Box sx={{ flexBasis: { xs: '0', md: '240px' }, backgroundColor: '#fff', borderRight: '1px solid #ccc', paddingTop: '30px', display: { xs: 'none', md: 'block' } }}>
+        <NavLink to="/test" exact activeClassName={classes.activeNavLink} className={classes.navLink}>
+          <ListItem button>
+            <ListItemIcon><Home /></ListItemIcon>
+            <ListItemText primary="Overview" />
+          </ListItem>
+        </NavLink>
+        <NavLink to="/students" activeClassName={classes.activeNavLink} className={classes.navLink}>
+          <ListItem button>
+            <ListItemIcon><People /></ListItemIcon>
+            <ListItemText primary="Students" />
+          </ListItem>
+        </NavLink>
+        <NavLink to="/attendance" activeClassName={classes.activeNavLink} className={classes.navLink}>
+          <ListItem button>
+            <ListItemIcon><EventNote /></ListItemIcon>
+            <ListItemText primary="Attendance" />
+          </ListItem>
+        </NavLink>
+      </Box>
+  
+      {/* Bottom navigation bar with icons */}
+      <Box sx={{ display: { xs: 'flex', md: 'none' }, flexDirection: 'row', justifyContent: 'space-between', padding: '10px', borderTop: '1px solid #ccc' }}>
+        <NavLink to="/test" exact activeClassName={classes.activeNavLink} className={classes.navLink}>
+          <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+            <Home />
+            <Typography variant="caption">Overview</Typography>
+          </Box>
+        </NavLink>
+        <NavLink to="/students" activeClassName={classes.activeNavLink} className={classes.navLink}>
+          <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+            <People />
+            <Typography variant="caption">Students</Typography>
+          </Box>
+        </NavLink>
+        <NavLink to="/attendance" activeClassName={classes.activeNavLink} className={classes.navLink}>
+          <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+            <EventNote />
+            <Typography variant="caption">Attendance</Typography>
+          </Box>
+        </NavLink>
+      </Box>
+    </Box>
+  </Box>
+  );
+};
+
+export default Page;
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+const theme = createTheme({
+  palette: {
+    primary: {
+      main: "#1976d2",
+    },
+    secondary: {
+      main: "#f50057",
+    },
+  },
+});
+
+ <Avatar sx={{ m: 1, bgcolor: theme.palette.secondary.main }}>
+    <LockOutlinedIcon />
+ </Avatar>
+
+
+
+
+
+
+
+import React,{useState, useEffect} from 'react';
+import { TextField, InputAdornment, Button, Paper, Typography, Grid, Box } from '@mui/material';
+import { makeStyles } from '@mui/styles';
+import { useTheme } from '@mui/material/styles';
+
+import { createTheme, ThemeProvider } from '@mui/material/styles';
+
+import loginImage from '../../Images/loginImage.png';
+import logo from '../../Images/logofull.png';
+import { ArrowForward } from '@mui/icons-material';
+
+import { toast, ToastContainer } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
+
+const theme = createTheme({
+  typography: {
+     fontFamily: "'Montserrat', sans-serif",
+  },
+});
+
+const useStyles = makeStyles(() => ({
+  paperContainer: {
+    display: 'flex',
+    justifyContent: 'center',
+    alignItems: 'center',
+    height: '100vh',
+    backgroundColor: '#f5f5f5',
+    [useTheme().breakpoints.down('xs')]: {
+      flexDirection: 'column',
+    },
+  },
+  paper: {
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    width: '50%',
+    height: '60%',
+    padding: useTheme().spacing(2),
+    backgroundColor: '#fff',
+    boxShadow: '0px 4px 12px rgba(0, 0, 0, 0.1)',
+    borderRadius: 16,
+    [useTheme().breakpoints.down('sm')]: {
+      width: '70%',
+    },
+    [useTheme().breakpoints.down('xs')]: {
+      width: '100%',
+      height: '100%',
+    },
+  },
+  textBox: {
+    display: 'flex',
+    flexDirection: 'column',
+    alignItems: 'center',
+    justifyContent: 'center',
+    width: '50%',
+    height: '100%',
+    paddingRight: useTheme().spacing(3),
+    [useTheme().breakpoints.down('xs')]: {
+      width: '100%',
+      height: 'auto',
+      paddingRight: 0,
+    },
+  },
+  imageBox: {
+    width: '50%',
+    height: '100%',
+    display: 'flex',
+    justifyContent: 'center',
+    alignItems: 'center',
+    borderRadius: '0px 8px 8px 0px',
+    overflow: 'hidden',
+    [useTheme().breakpoints.down('sm')]: {
+      display: 'none',
+    },
+  },
+  logo: {
+    width: '60%',
+    marginBottom: useTheme().spacing(2),
+    [useTheme().breakpoints.down('sm')]: {
+      width: '80%',
+    },
+  },
+  image: {
+    objectFit: 'cover',
+    width: '100%',
+    height: '100%',
+  },
+}));
+
+const LoginPage = () => {
+  const classes = useStyles();
+  const [phoneNumber, setPhoneNumber] = useState("");
+
+  const handlePhoneNumberChange = (event) => {
+    const value = event.target.value;
+    // remove all non-digit characters from the phone number
+    const cleanedValue = value.replace(/\D/g, "");
+    setPhoneNumber(cleanedValue);
+  };
+
+  const handleSubmit = (event) => {
+    toast.error('This phone number is already registered. Please contact the admin.', {
+      position: toast.POSITION.TOP_CENTER,
+    });
+  };
+
+  return (
+    <ThemeProvider theme={theme}>
+      <Box className={classes.paperContainer}>
+        <Paper elevation={3} className={classes.paper} sx={{ borderRadius: '8px' }}>
+          <Box className={classes.textBox}>
+            <img src={logo} alt="company logo" className={classes.logo} />
+            <Typography variant="h6" align="center" gutterBottom>
+              Welcome back!
+            </Typography>
+            <Typography variant="body2" align="center" gutterBottom>
+              Enter your phone number to log in
+            </Typography>
+            <br />
+            <TextField
+              label="Phone Number"
+              variant="outlined"
+              margin="normal"
+              size="small"
+              fullWidth
+              type="tel"
+              value={phoneNumber}
+              onChange={handlePhoneNumberChange}
+              InputProps={{
+                startAdornment: (
+                  <InputAdornment position="start">+91</InputAdornment>
+                ),
+              }}
+            />
+            <br />
+            <Button
+              variant="contained"
+              color="primary"
+              size="large"
+              fullWidth
+              disabled={phoneNumber.length != 10}
+              endIcon={<ArrowForward />}
+              onClick={handleSubmit}
+            >
+              Continue
+            </Button>
+          </Box>
+          <Box className={classes.imageBox}>
+            <img src={loginImage} alt="login" className={classes.image} />
+          </Box>
+        </Paper>
+        <ToastContainer position={toast.POSITION.TOP_CENTER} />
+      </Box>
+    </ThemeProvider>
+  );
+}
+export default LoginPage;
+
+
+
+
+
+
+
+
+
+
+import React,{useState, useEffect} from 'react';
+import { TextField, InputAdornment, Button, Paper, Typography, Grid, Box } from '@mui/material';
+import { makeStyles } from '@mui/styles';
+import { useTheme } from '@mui/material/styles';
+
+
+import { createTheme, ThemeProvider } from '@mui/material/styles';
+
+import loginImage from '../../Images/loginImage.png';
+import logo from '../../Images/logofull.png';
+import { ArrowForward } from '@mui/icons-material';
+import { Check } from "@mui/icons-material";
+
+import { toast, ToastContainer } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
+
+const theme = createTheme({
+  typography: {
+     fontFamily: "'Montserrat', sans-serif",
+  },
+});
+
+const useStyles = makeStyles(() => ({
+  paperContainer: {
+    display: 'flex',
+    justifyContent: 'center',
+    alignItems: 'center',
+    height: '100vh',
+    backgroundColor: '#f5f5f5',
+    [useTheme().breakpoints.down('xs')]: {
+      flexDirection: 'column',
+    },
+  },
+  paper: {
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    width: '50%',
+    height: '60%',
+    padding: useTheme().spacing(2),
+    backgroundColor: '#fff',
+    boxShadow: '0px 4px 12px rgba(0, 0, 0, 0.1)',
+    borderRadius: 16,
+    [useTheme().breakpoints.down('sm')]: {
+      width: '70%',
+    },
+    [useTheme().breakpoints.down('xs')]: {
+      width: '100%',
+      height: '100%',
+    },
+  },
+  textBox: {
+    display: 'flex',
+    flexDirection: 'column',
+    alignItems: 'center',
+    justifyContent: 'center',
+    width: '50%',
+    height: '100%',
+    paddingRight: useTheme().spacing(3),
+    paddingLeft: useTheme().spacing(3),
+
+    [useTheme().breakpoints.down('xs')]: {
+      width: '100%',
+      height: 'auto',
+      paddingRight: 0,
+      paddingLeft:0,
+    },
+  },
+  imageBox: {
+    width: '50%',
+    height: '100%',
+    display: 'flex',
+    justifyContent: 'center',
+    alignItems: 'center',
+    borderRadius: '0px 8px 8px 0px',
+    overflow: 'hidden',
+    [useTheme().breakpoints.down('sm')]: {
+      display: 'none',
+    },
+  },
+  logo: {
+    width: '60%',
+    marginBottom: useTheme().spacing(2),
+    [useTheme().breakpoints.down('sm')]: {
+      width: '80%',
+    },
+  },
+  image: {
+    objectFit: 'cover',
+    width: '100%',
+    height: '100%',
+  },
+
+  otpContainer: {
+    display: 'flex',
+    flexDirection: 'row',
+  },
+
+
+}));
+
+const LoginPage = () => {
+  const classes = useStyles();
+  const [otp, setOtp] = useState(Array(6).fill(""));
+  const [isDisabled, setIsDisabled]=useState(true)
+
+const handleOtpChange = (event, index) => {
+  const value = event.target.value;
+  if (value.length <= 1) {
+    const otpCopy = [...otp];
+    otpCopy[index] = value;
+    setOtp(otpCopy);
+    if (index < 5 && value.length === 1) {
+      document.getElementById(`otp-${index + 1}`).focus();
+    }
+  }
+
+ 
+  const otpValue = otp.join("");
+  
+  setIsDisabled(otpValue.length < 5);
+  console.log(isDisabled);
+};
+
+const [seconds, setSeconds] = useState(90); // set initial time to 90 seconds
+
+  useEffect(() => {
+    const timer = setInterval(() => {
+      setSeconds((prevSeconds) => prevSeconds - 1);
+    }, 1000);
+
+    return () => clearInterval(timer); // cleanup function to clear the interval when the component unmounts
+  }, []);
+
+  useEffect(() => {
+    if (seconds === 0) {
+      alert("Time's up!"); // show an alert when the time is up
+    }
+  }, [seconds]);
+
+  const minutes = Math.floor(seconds / 60);
+  const remainingSeconds = seconds % 60;
+
+
+
+  const handleSubmit = (event) => {
+    const otpValue = otp.join("");
+    console.log(otpValue);
+
+    toast.error('This phone number is already registered. Please contact the admin.'+otpValue, {
+      position: toast.POSITION.TOP_CENTER,
+    });
+  };
+
+  return (
+    <ThemeProvider theme={theme}>
+      <Box className={classes.paperContainer}>
+        <Paper elevation={3} className={classes.paper} sx={{ borderRadius: '8px' }}>
+
+           <Box className={classes.imageBox}>
+            <img src={loginImage} alt="login" className={classes.image} />
+          </Box>
+
+          <Box className={classes.textBox}>
+            <img src={logo} alt="company logo" className={classes.logo} />
+
+            <Typography variant="h6" align="center" gutterBottom>
+              {`${minutes}:${remainingSeconds < 10 ? "0" : ""}${remainingSeconds}`}
+            </Typography>
+
+            <Typography variant="body2" align="center" gutterBottom>
+            Enter Verification Code
+            </Typography>
+            <br />
+
+            <Grid container spacing={2} justifyContent="center" className={classes.otpContainer}>
+              {Array.from({ length: 6 }, (_, index) => (
+                <Grid key={index} item xs={2}>
+                  <TextField
+                    variant="outlined"
+                    margin="normal"
+                    size="small"
+                    inputProps={{
+                      maxLength: 1,
+                      style: { textAlign: "center", fontSize: 18 },
+                    }}
+                    value={otp[index]}
+                    onChange={(event) => handleOtpChange(event, index)}
+                    id={`otp-${index}`}
+                  />
+                </Grid>
+              ))}
+            </Grid>
+
+            <br />
+
+            <Button
+              variant="contained"
+              color="primary"
+              size="large"
+              fullWidth 
+              endIcon={<Check />}
+              onClick={handleSubmit}
+              disabled={isDisabled}
+            >
+              Verify
+            </Button>
+
+          </Box>
+         
+        </Paper>
+        <ToastContainer position={toast.POSITION.TOP_CENTER} />
+      </Box>
+    </ThemeProvider>
+  );
+}
+export default LoginPage;
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+ 
+ 
+ 
+ disabled={phoneNumber.length < 10}
+
+
+
+import { useTheme } from '@mui/material/styles';
+
+import React,{useState, useEffect} from 'react';
+import { TextField, InputAdornment, Button, Paper, Typography, Grid, Box } from '@mui/material';
+import { makeStyles } from '@mui/styles';
+import { useTheme } from '@mui/material/styles';
+
+import { createTheme, ThemeProvider } from '@mui/material/styles';
+
+import loginImage from '../../Images/loginImage.png';
+import logo from '../../Images/logofull.png';
+import { ArrowForward } from '@mui/icons-material';
+
+const theme = createTheme({
+  typography: {
+     fontFamily: "'Montserrat', sans-serif",
+  },
+});
+
+
+const LoginPage = () => {
+
+  const [phoneNumber, setPhoneNumber] = useState("");
+
+  const handlePhoneNumberChange = (event) => {
+    const value = event.target.value;
+    // remove all non-digit characters from the phone number
+    const cleanedValue = value.replace(/\D/g, "");
+    setPhoneNumber(cleanedValue);
+  };
+
+  const handleSubmit = (event) => {
+    event.preventDefault();
+    // check if the phone number matches any account
+    // if (phoneNumber === "1234567890") { // replace with your account validation logic
+    //   // show success message or redirect to the next page
+    // } else {
+    //   // show error message
+    //   toast.error("The phone number you entered does not match any account. Sorry!");
+    // }
+  };
+
+
+  return (
+    <ThemeProvider theme={theme}>
+    <Box
+      sx={{
+        display: 'flex',
+        justifyContent: 'center',
+        alignItems: 'center',
+        height: '100vh',
+        bgcolor: '#f5f5f5',
+      }}
+    >
+      <Box
+        sx={{
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          width: '50%',
+          height: '60%',
+          p: 2,
+          bgcolor: '#fff',
+          boxShadow: '0px 4px 12px rgba(0, 0, 0, 0.1)',
+          borderRadius: 4,
+        }}
+      >
+        <Box
+          sx={{
+            display: 'flex',
+            flexDirection: 'column',
+            alignItems: 'center',
+            justifyContent: 'center',
+            width: '50%',
+            height: '100%',
+            px: 2,
+          }}
+        >
+          <img
+            src={logo}
+            alt="company logo"
+            style={{ width: '60%', marginBottom: 12 }}
+          />
+          <Typography variant="h6" align="center" gutterBottom>
+            Welcome back!
+          </Typography>
+          <Typography variant="body2" align="center" gutterBottom>
+            Enter your phone number to log in
+          </Typography>
+          <br/>
+          <TextField
+            label="Phone Number"
+            variant="outlined"
+            margin="normal"
+            size="small"
+            fullWidth
+            type="tel"
+            value={phoneNumber}
+            onChange={handlePhoneNumberChange}
+            InputProps={{
+              startAdornment: <InputAdornment position="start">+91</InputAdornment>,
+            }}
+          />
+            <Button variant="contained" color="primary" endIcon={<ArrowForward />} fullWidth onClick={handleSubmit}>
+            Continue
+            </Button>
+        </Box>
+        <Box
+          sx={{
+            width: '50%',
+            height: '100%',
+            display: 'flex',
+            justifyContent: 'center',
+            alignItems: 'center',
+            borderRadius: '0px 8px 8px 0px',
+            overflow: 'hidden',
+          }}
+        >
+          <img
+            src={loginImage}
+            alt="login image"
+            style={{ maxWidth: '100%', maxHeight: '100%', borderRadius: 8 }}
+          />
+        </Box>
+      </Box>
+    </Box>
+    </ThemeProvider>
+  );
+};
+
+export default LoginPage;
+
+
+
+ /
+|-- students (collection)
+|   |-- {studentId} (document)
+|   |   |-- name: string
+|   |   |-- dates (subcollection)
+|   |       |-- {date} (document)
+|   |           |-- attendance: boolean
+|   |-- {studentId} (document)
+|   |   |-- name: string
+|   |   |-- dates (subcollection)
+|   |       |-- {date} (document)
+|   |           |-- attendance: boolean
+|   |-- ...
+|-- attendance (collection)
+|   |-- {date} (document)
+|   |   |-- date: string
+|   |   |-- students: object
+|   |       |-- {studentId}: boolean
+|   |-- {date} (document)
+|   |   |-- date: string
+|   |   |-- students: object
+|   |       |-- {studentId}: boolean
+|   |-- ... 
+
+
+
+
+
+
+
+|-- attendance (collection)
+|   |-- {date} (document)
+|   |   |-- date: string
+|   |   |-- students: object
+|   |       |-- {studentId}: boolean
+|   |-- {date} (document)
+|   |   |-- date: string
+|   |   |-- students: object
+|   |       |-- {studentId}: boolean
+|   |-- ...
+
+
+
+
+
+
+
+|-- students (collection)
+|   |-- {studentId} (document)
+|   |   |-- name: string
+|   |   |-- dates (subcollection)
+|   |       |-- {date} (document)
+|   |           |-- attendance: boolean
+|   |-- {studentId} (document)
+|   |   |-- name: string
+|   |   |-- dates (subcollection)
+|   |       |-- {date} (document)
+|   |           |-- attendance: boolean
+|   |-- ... 
+
+
+
+
+
+
+
+const handleSubmit = async (e) => {
+  e.preventDefault();
+
+  const attendanceDate = new Date().toISOString().split('T')[0]; // get today's date in ISO format
+
+  // Create attendance data object for Firestore
+  const attendanceDoc = {
+    date: attendanceDate,
+    students: students.reduce((attendance, student) => {
+      attendance[student.id] = student.isPresent;
+      return attendance;
+    }, {})
+  };
+
+  const batch = db.batch();
+  
+  // Add attendance data to Firestore
+  batch.set(doc(db, 'attendance', attendanceDate), attendanceDoc);
+
+  // Update attendance data for all students
+  students.forEach((student) => {
+    const attendanceRef = doc(collection(db, 'students'), student.id, 'attendance', attendanceDate);
+    batch.set(attendanceRef, { isPresent: student.isPresent });
+  });
+
+  await batch.commit();
+};
+
+
+
+  ******* DATE WISE FETCH *********
+ --------------------------------------- 
+
+ 
+  const [selectedDate, setSelectedDate] = useState("");
+  const [attendanceData, setAttendanceData] = useState([]);
+   
+   useEffect(() => {
+    const fetchData = async () => {
+      try {
+        if (selectedDate !== "") {
+          const attendanceRef = collection(db, "attendance");
+          const attendanceDoc = doc(attendanceRef, selectedDate);
+          const attendanceSnapshot = await getDoc(attendanceDoc);
+          if (attendanceSnapshot.exists()) {
+            setAttendanceData(attendanceSnapshot.data().students);
+          } else {
+            setAttendanceData([]);
+          }
+        } else {
+          setAttendanceData([]);
+        }
+      } catch (error) {
+        console.error("Error fetching attendance data: ", error);
+      }
+    };
+
+    fetchData();
+  }, [selectedDate]);
+
+          <ul>
+            {Object.entries(attendanceData).map(([studentId, attendance]) => (
+              <li key={studentId}>
+                Student ID: {studentId}, Attendance: {attendance ? "Present" : "Absent"}
+              </li>
+            ))}
+          </ul>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+   
+   
+   
+   
     <div className={classes.root}>
     <Typography variant="h5" className={classes.title}>Students</Typography>
     <List>
