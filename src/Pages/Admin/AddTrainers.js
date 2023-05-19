@@ -19,14 +19,14 @@ const AddTrainers = () => {
 
     useEffect(() => {
         const fetchItems = async () => {
-        const q = query(collection(db, 'bs'));
+        const q = query(collection(db, 'batches'));
         const querySnapshot = await getDocs(q);
         const data = querySnapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() }));
         setAllBatches(data);
         console.log(data);
         };
         fetchItems();
-  }, []);
+    }, []);
 
 
   const [checkedValues, setCheckedValues] = useState([]);
@@ -72,9 +72,6 @@ const AddTrainers = () => {
 
             <h3 style={{width:"100%", textAlign:"left"}}>ADD TRAINERS</h3>
 
-            
-
-              
 
                 <TextField
                     value={name}
@@ -117,7 +114,6 @@ const AddTrainers = () => {
                                     value={item.code}
                                   />
                               }
-        
                               label={item.name}
                               
                               />

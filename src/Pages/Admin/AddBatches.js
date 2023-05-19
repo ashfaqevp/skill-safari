@@ -7,9 +7,6 @@ import { TextField, Button, Grid, Container, Typography, Box} from '@mui/materia
 import { LocalizationProvider } from '@mui/x-date-pickers'
 import { DatePicker } from '@mui/x-date-pickers';
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
-
-// import { DemoContainer } from '@mui/x-date-pickers/internals/demo';
-// import { LocalizationProvider } from '@mui/x-date-pickers';
 import dayjs from 'dayjs';
 
 // import { DatePicker } from '@mui/x-date-pickers/DatePicker';
@@ -19,7 +16,7 @@ import dayjs from 'dayjs';
     const [code, setCode] = useState('');
     const [course, setCourse] = useState('');
     const [startDate, setStartDate] = useState(null);
-    const [endDate, setEndDate] = useState(dayjs());
+    const [endDate, setEndDate] = useState(null);
 
     const [tagInput, setTagInput] = useState('');
     const [tags, setTags] = useState([]);
@@ -62,6 +59,8 @@ import dayjs from 'dayjs';
             timestamp: serverTimestamp(),
           });
 
+          
+
         }
 
 
@@ -81,7 +80,7 @@ import dayjs from 'dayjs';
 
             <Grid container spacing={2}>
 
-                <Grid item xs={12} sm={4}>
+                <Grid item xs={12} sm={12}>
                 <TextField
                     value={name}
                     fullWidth
@@ -106,7 +105,6 @@ import dayjs from 'dayjs';
 
                 <Grid item xs={12} sm={4}>
                 <TextField
-
                     value={course}
                     fullWidth
                     label="Course"
@@ -151,7 +149,6 @@ import dayjs from 'dayjs';
                     onChange={handleTagInput}
                     onKeyDown={handleKeyDown}
                 >
-
                 </TextField > 
                 </Grid>
 

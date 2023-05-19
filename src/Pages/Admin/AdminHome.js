@@ -1,13 +1,101 @@
-import React, { useContext } from 'react';
-import  {AuthContext}  from '../../Contexts/AuthContext';
+import { useState, useEffect } from 'react';
+import { Outlet, useNavigate  } from 'react-router-dom';
+
+import AdminNavbar from  '../../Components/AdminNavbar'
+
+import { onAuthStateChanged } from 'firebase/auth';
+import { collection, doc, getDoc } from "firebase/firestore";
+import { auth, db } from '../../firebase';
+
+import { makeStyles } from '@mui/styles';
+import { useTheme } from '@mui/material/styles';
+
+
+import { Box } from '@mui/material';
+
+
+const useStyles = makeStyles(() => ({
+  root: {
+    display: 'flex',
+    flexDirection: 'column',
+    minHeight: '100vh',
+    overflow: 'hidden',
+  },
+
+
+  content: {
+    flexGrow: 1,
+    zIndex: 1,
+    boxSizing: 'border-box',
+    backgroundColor: '#F5F5F5',
+    width:'100%',
+    marginTop:"70px",
+    [useTheme().breakpoints.down('sm')]: {
+      width:"100%",
+    },
+  }, 
+}));
 
 
 const AdminHome = () => {
-    const { currentUser } = useContext(AuthContext);
-    console.log(currentUser);
-    return(
-        // <h1> {currentUser.email}</h1>
-        <h1>home</h1>
-    )
-}
+
+  const classes = useStyles();
+
+  const navigate = useNavigate();
+  const [user, setUser] = useState(null);
+  
+
+  useEffect(() => {
+    const unsubscribe = onAuthStateChanged(auth, (user) => {
+      setUser(user);
+      console.log(user)
+      if (!user) {
+      navigate('/login');
+    }   
+    });
+
+    return () => unsubscribe();
+  },[]);
+
+
+  useEffect(() => {
+    async function fetchData() {
+
+      const docRef3 = doc(collection(db, "admins"), user);
+      const docSnap3 = await getDoc(docRef3);
+      if (docSnap3.exists()) {
+        console.log("success ")
+      } else {
+        navigate('/login'); 
+      }
+    }
+    fetchData();
+  }, [user]);
+
+
+  useEffect(()=>{
+    navigate("/admin/batches")
+  },[])
+
+
+
+  return (
+    <Box className={classes.root} >
+      
+    {/* Header */}
+      <Box sx={{ flexGrow: 0, position: 'fixed', zIndex: 2, width:'100%',  }}>
+        <AdminNavbar />
+      </Box>
+
+    {/* Main content */}      
+      <Box className={classes.content} >
+          <Outlet/>
+      </Box>
+
+    </Box>
+
+    
+
+  );
+};
 export default AdminHome;

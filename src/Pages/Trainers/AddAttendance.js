@@ -6,30 +6,33 @@ import { db } from '../../firebase';
 
 import { makeStyles } from '@mui/styles';
 import { useTheme } from '@mui/material/styles';
-import { Container,  Card,  CardHeader,  CardContent,  Grid,  Typography,  FormGroup,  FormControlLabel,  Switch,  Button,  TableContainer,  Table,  TableHead,  TableRow,  TableCell,  TableBody,  Avatar,  IconButton, Box,} from '@mui/material';
+import { Container,  Card,  CardHeader,  CardContent,  Grid,  Typography,  FormGroup,  FormControlLabel,  Switch,  Button,  TableContainer,  Table,  TableHead,  TableRow,  TableCell,  TableBody,  Avatar,  IconButton, Box, useMediaQuery} from '@mui/material';
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 
 
 const useStyles = makeStyles(() => ({
   container: {
-
     backgroundColor: "#f5f5f5",
     minHeight: "100vh",
-    // minWidth: "100vw"
   },
+
   card: {
-    marginTop: useTheme().spacing(4),
-    marginBottom: useTheme().spacing(4),
+    paddingTop: useTheme().spacing(4),
+    paddingBottom: useTheme().spacing(4),
     maxWidth: '70%',
     margin: '0 auto',
     [useTheme().breakpoints.down('sm')]: {
       maxWidth: '100%',
-      margin: useTheme().spacing(2),
+      paddingTop: useTheme().spacing(2),
+      paddingLeft:"5px",
+      paddingRight:"5px"
     },
   },
+
   backButton: {
     marginRight: useTheme().spacing(1),
   },
+
   switchLabel: {
     display: 'flex',
     alignItems: 'center',
@@ -37,6 +40,16 @@ const useStyles = makeStyles(() => ({
   submitButton: {
     marginTop: useTheme().spacing(2),
   },
+
+  tableCell: {
+    display: 'flex',
+    flexDirection: 'column',
+    alignItems: 'flex-start',
+    paddingLeft: '8px',
+    paddingRight: '8px',
+  },
+
+
 }));
 
 
@@ -45,6 +58,9 @@ const AddAttendance = () => {
   const {id, date}=useParams();
   const navigate = useNavigate();
   const classes = useStyles();
+
+  const isSmallScreen = useMediaQuery(useTheme().breakpoints.down('sm'));
+  const [usedColors, setUsedColors] = useState([]);
 
   const [students, setStudents] = useState([]);
   const [attendance, setAttendance] = useState({})
@@ -141,8 +157,14 @@ const AddAttendance = () => {
   };
 
   const handleBack = () => {
-    navigate(`/batch/${id}/attendance/`)
+    navigate(`/tr/batch/${id}/attendance/`)
   }
+
+  const getAvatarColor = (index) => {
+    const colors = [ "#34A853", "#EA4335", "#FBBC05", "#4285F4", "#DB4437", "#F4B400", "#0F9D58", "#4286f4",  "#7FDBFF", "#2ECC40", "#FF4136", "#FFDC00"];
+    const colorIndex = index % colors.length;
+    return colors[colorIndex];
+  };
 
 
 
@@ -192,13 +214,47 @@ const AddAttendance = () => {
                     </TableRow>
                   </TableHead>
                   <TableBody>
-                    {students.map((student) => (
+                    {students.map((student, index) => (
                       <TableRow key={student.phone}>
                         <TableCell>
-                          <Avatar>{student.name.charAt(0)}</Avatar>
+
+                      <Avatar src={students.imageUrl} sx={{ bgcolor: getAvatarColor(index)}} >{student.name.charAt(0)}</Avatar>
                         </TableCell>
+
+
+                 { isSmallScreen ? (
+                    <>
+                         <TableCell className={classes.tableCell}>
+                          <Typography variant="body1" style={{ width: '100%'  }} component="div">
+                            {student.name}
+                          </Typography>
+                          <Typography variant="body2" component="div">
+                            {student.phone}
+                          </Typography>
+                         </TableCell>
+                    </>
+                  ) : (
+                    <>
+                    <TableCell>{student.name}</TableCell>
+                    <TableCell>{student.phone}</TableCell> 
+                    </>
+                  )}
+
+
+                    {/* 
                         <TableCell>{student.name}</TableCell>
-                        <TableCell>{student.phone}</TableCell>
+                        <TableCell>{student.phone}</TableCell> */}
+
+
+                         {/* <TableCell className={classes.tableCell}>
+                          <Typography variant="body1" style={{ width: isSmallScreen ? '100%' : '30%' }} component="div">
+                            {student.name}
+                          </Typography>
+                          <Typography variant="body2" component="div">
+                            {student.phone}
+                          </Typography>
+                        </TableCell> */}
+
                         <TableCell align="center">
                           <FormGroup>
                             <FormControlLabel

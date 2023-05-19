@@ -20,4 +20,4 @@ const firebaseApp = getApp();
 export const auth = getAuth();
 export const database = getDatabase(app);
 export const db = getFirestore(app);
-//export const storage = getStorage(firebaseApp, "gs://ablog-153d9.appspot.com");
+export const storage = getStorage(firebaseApp, "gs://skillsafari-b1ba4.appspot.com/");

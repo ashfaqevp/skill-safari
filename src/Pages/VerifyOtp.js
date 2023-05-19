@@ -1,7 +1,7 @@
 import React,{useState, useEffect} from 'react';
 import {useNavigate } from 'react-router-dom';
 
-import { TextField,  Button, Paper, Typography, Grid, Box } from '@mui/material';
+import { TextField,  Button, Paper, Typography, Grid, Box, useMediaQuery  } from '@mui/material';
 import { makeStyles } from '@mui/styles';
 import { useTheme } from '@mui/material/styles';
 import { createTheme, ThemeProvider } from '@mui/material/styles';
@@ -59,11 +59,12 @@ const useStyles = makeStyles(() => ({
     paddingRight: useTheme().spacing(3),
     paddingLeft: useTheme().spacing(3),
 
-    [useTheme().breakpoints.down('xs')]: {
-      width: '100%',
+    [useTheme().breakpoints.down('sm')]: {
+      width: '70%',
       height: 'auto',
       paddingRight: 0,
       paddingLeft:0,
+      // fontSize:'12sp'
     },
   },
   imageBox: {
@@ -78,6 +79,21 @@ const useStyles = makeStyles(() => ({
       display: 'none',
     },
   },
+
+
+  otp: {
+    fontSize: 18 ,
+    [useTheme().breakpoints.down('sm')]: {
+      fontSize: 10,
+      padding:0,
+    },
+    [useTheme().breakpoints.down('xs')]: {
+      fontSize: 8,
+    },
+  },
+
+
+
   logo: {
     width: '60%',
     marginBottom: useTheme().spacing(2),
@@ -124,6 +140,9 @@ const VerifyOtp = () => {
       navigate('/login');
     }
   }, [seconds]);
+
+
+  const isSmallScreen = useMediaQuery(theme.breakpoints.down('sm'));
 
 
 
@@ -193,13 +212,15 @@ const handleOtpChange = (event, index) => {
             <Grid container spacing={2} justifyContent="center" className={classes.otpContainer}>
               {Array.from({ length: 6 }, (_, index) => (
                 <Grid key={index} item xs={2}>
-                  <TextField
+                  <TextField 
+                    className={classes.otp}
                     variant="outlined"
                     margin="normal"
-                    size="small"
+                    size="medium"
                     inputProps={{
                       maxLength: 1,
-                      style: { textAlign: "center", fontSize: 18 },
+                      // style: { textAlign: "center", }
+                      style: { textAlign: "center", fontSize: isSmallScreen &&  "9px" , padding:  "5px" }
                     }}
                     value={otp[index]}
                     onChange={(event) => handleOtpChange(event, index)}

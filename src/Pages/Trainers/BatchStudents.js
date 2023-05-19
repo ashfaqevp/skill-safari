@@ -1,11 +1,11 @@
 import React, { useState, useEffect } from "react";
-import {useParams } from 'react-router-dom';
+import {useParams,Link , useNavigate} from 'react-router-dom';
 
-import { where, collection, getDocs, query,  updateDoc, doc } from "firebase/firestore";
+import { where, collection, getDocs, query,  updateDoc, doc, deleteDoc } from "firebase/firestore";
 import { db } from '../../firebase';
 
 import { makeStyles } from '@mui/styles';
-import { Card, CardHeader, CardContent, IconButton, Typography,  Container, Tabs, Tab, List, ListItem,
+import { Card, CardHeader, CardContent, IconButton, Typography,  Container, Tabs, Tab, List, ListItem, DialogActions,
         ListItemAvatar, Avatar, ListItemText, ListItemSecondaryAction,  Menu, MenuItem, useMediaQuery, Button} from '@mui/material';
 import { useTheme } from '@mui/material/styles';
 import Dialog from '@mui/material/Dialog'
@@ -13,6 +13,9 @@ import DialogContent from '@mui/material/DialogContent';
 import DialogTitle from '@mui/material/DialogTitle';
 import { MoreVert, Close, Add } from "@mui/icons-material";
 import AddStudent from "./AddStudent";
+
+import { toast, ToastContainer } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 
 
 
@@ -64,6 +67,8 @@ function BatchStudents() {
     const classes = useStyles();
     const isSmallScreen = useMediaQuery(useTheme().breakpoints.down('sm'));
     const [usedColors, setUsedColors] = useState([]);
+
+    const [confirmOpen, setConfirmOpen] = useState(false);
 
     const [activeTab, setActiveTab] = useState(0);
     const [anchorEl, setAnchorEl] = useState(null);
@@ -136,31 +141,66 @@ function BatchStudents() {
     };
 
   
-    const handleDeleteClick = (student) => {
-      console.log("Delete student:", student);
-      handleOptionMenuClose();
+
+    const navigate = useNavigate();
+
+ 
+
+
+    const handleStudentPage = (student) => {
+      navigate(`/student/${id}/${student.phone}`);
+    }
+
+
+  
+    const handleDeleteClick = () => {
+      setConfirmOpen(true);
+    };
+
+  
+    const handleDeleteConfirm = async () => {
+      try {
+   
+          // const studentId = selectedStudent.phone;
+          const studentRef = doc(db, 'batches', id, 'students', selectedStudent.phone);
+          await deleteDoc(studentRef);
+          setConfirmOpen(false);
+          setSelectedStudent(null);
+          handleOptionMenuClose();
+          fetchData();
+          fetchInactiveData();
+          toast.success(' Student deleted successfully ', {
+            position: toast.POSITION.TOP_CENTER,
+          });
+
+        } catch (error) {
+          console.error('Error deleting student:', error);
+        }
+
+   
     };
 
 
+
+    const handleEditClick = (student) => {
+      navigate(`/tr/batch/${id}/student/${student.phone}`);
+    };
+  
+
+
+
     function handleSubmitStudent() {
-      alert("Student Successfully Added!" );
+      toast.success('New Student successfully added', {
+        position: toast.POSITION.TOP_CENTER,
+      });
       fetchData();
       setOpen(false);
     }
 
-    const getRandomColor = () => {
-      const colors = ["#4285F4", "#DB4437", "#F4B400", "#0F9D58", "#34A853", "#EA4335", "#FBBC05", "#4286f4", "#9AA0A6", "#7FDBFF", "#2ECC40", "#FF4136", "#FFDC00"];
-      const availableColors = colors.filter((color) => !usedColors.includes(color));
-      if (availableColors.length === 0) {
-        // all colors have been used, reset the list
-        usedColors.splice(0, usedColors.length);
-        return colors[0];
-      } else {
-        const randomIndex = Math.floor(Math.random() * availableColors.length);
-        const randomColor = availableColors[randomIndex];
-        usedColors.push(randomColor);
-        return randomColor;
-      }
+    const getAvatarColor = (index) => {
+      const colors = [ "#34A853", "#EA4335", "#FBBC05", "#4285F4", "#DB4437", "#F4B400", "#0F9D58", "#4286f4",  "#7FDBFF", "#2ECC40", "#FF4136", "#FFDC00"];
+      const colorIndex = index % colors.length;
+      return colors[colorIndex];
     };
 
   return (
@@ -190,14 +230,23 @@ function BatchStudents() {
           {activeTab === 0 && (
             <List>
               {students.map((student, index) => ( 
-                <ListItem key={index}>
+                <ListItem 
+                // component={Link} to={`/admin/batch/${id}/student/${student.phone}`}
+                 key={student.phone}>
+
+                  
                   <ListItemAvatar>
-                  <Avatar style={{marginRight:"10px"}} sx={{ bgcolor: getRandomColor()}} >{student.name[0]}</Avatar>
+
+                  <ListItemAvatar >
+                    <Avatar src={student.imageUrl} style={{marginRight:"10px"}} sx={{ bgcolor: getAvatarColor(index)}}>
+                    {student.name[0]}</Avatar>
+
+                  </ListItemAvatar>
                   </ListItemAvatar>
 
                   {! isSmallScreen ? (
                     <>
-                      <ListItemText style={{width:"30%"}} primary={student.name}  />
+                      <ListItemText style={{width:"30%", color: "text.primary"}} primary={student.name}  />
                       <ListItemText secondary={student.phone} />
                     </>
                   ) : (
@@ -207,16 +256,25 @@ function BatchStudents() {
                   />
                   )}
 
-                  <ListItemSecondaryAction>
-                    <IconButton onClick={(event) => handleOptionMenuClick(event, student)}>
-                      <MoreVert />
-                    </IconButton>
-                    <Menu anchorEl={anchorEl} open={Boolean(anchorEl)} onClose={handleOptionMenuClose}>
-                      <MenuItem onClick={() => handleInactiveStudents(selectedStudent)}>Make Inactive in Batch</MenuItem>
-                      <MenuItem onClick={() => handleDeleteClick(selectedStudent)}>Edit</MenuItem>
-                      <MenuItem onClick={() => handleDeleteClick(selectedStudent)}>Remove from Batch</MenuItem>
-                    </Menu>
-                  </ListItemSecondaryAction>
+
+                      
+
+                      <ListItemSecondaryAction>
+
+                        <IconButton onClick={(event) => handleOptionMenuClick(event, student)}>
+                          <MoreVert />
+                        </IconButton>
+
+                        <Menu anchorEl={anchorEl} open={Boolean(anchorEl)} onClose={handleOptionMenuClose}>
+                        <MenuItem onClick={() => handleStudentPage(selectedStudent)}>View </MenuItem>
+                          <MenuItem onClick={() => handleEditClick(selectedStudent)}>Edit </MenuItem>
+                          <MenuItem onClick={() => handleInactiveStudents(selectedStudent)}>Make Inactive in Batch</MenuItem>
+                          <MenuItem onClick={() => handleDeleteClick(selectedStudent)}>Delete</MenuItem>
+                        </Menu>
+
+                      </ListItemSecondaryAction>
+ 
+                  
                 </ListItem>
               ))}
             </List>
@@ -224,14 +282,20 @@ function BatchStudents() {
           {activeTab === 1 && (
             <List>
                 {inactiveStudents.map((student, index) => (
-                <ListItem key={index}>
-                  <ListItemAvatar>
-                  <Avatar style={{marginRight:"10px"}}>{student.name[0]}</Avatar>
+
+                  <ListItem 
+                  // component={Link} to={`/admin/batch/${id}/student/${student.phone}`}
+                   key={student.phone}>
+
+
+                  <ListItemAvatar >
+                    <Avatar src={student.imageUrl} style={{marginRight:"10px"}} >
+                    {student.name[0]}</Avatar>
                   </ListItemAvatar>
 
                   {! isSmallScreen ? (
                     <>
-                      <ListItemText style={{width:"30%"}} primary={student.name}  />
+                      <ListItemText style={{width:"30%", color: "text.primary"}} primary={student.name}  />
                       <ListItemText secondary={student.phone} />
                     </>
                   ) : (
@@ -241,7 +305,8 @@ function BatchStudents() {
                   />
                   )}
 
-                  <ListItemSecondaryAction>
+
+                  {/* <ListItemSecondaryAction>
                     <IconButton onClick={(event) => handleOptionMenuClick(event, student)}>
                       <MoreVert />
                     </IconButton>
@@ -249,7 +314,24 @@ function BatchStudents() {
                       <MenuItem onClick={() => handleActivateStudents(selectedStudent)}>Make Active in Batch</MenuItem>
                       <MenuItem onClick={() => handleDeleteClick(selectedStudent)}>Remove from Batch</MenuItem>
                     </Menu>
+                  </ListItemSecondaryAction> */}
+
+                  <ListItemSecondaryAction>
+
+                    <IconButton onClick={(event) => handleOptionMenuClick(event, student)}>
+                      <MoreVert />
+                    </IconButton>
+
+                    <Menu anchorEl={anchorEl} open={Boolean(anchorEl)} onClose={handleOptionMenuClose}>
+                    <MenuItem onClick={() => handleStudentPage(selectedStudent)}>View </MenuItem>
+                      <MenuItem onClick={() => handleEditClick(selectedStudent)}>Edit </MenuItem>
+                      <MenuItem onClick={() => handleActivateStudents(selectedStudent)}>Make Active in Batch</MenuItem>
+                      <MenuItem onClick={() => handleDeleteClick(selectedStudent)}>Delete</MenuItem>
+                    </Menu>
+
                   </ListItemSecondaryAction>
+
+
                 </ListItem>
               ))}
             </List>
@@ -258,10 +340,6 @@ function BatchStudents() {
       </Card>
 
 
-
-
-
-      {/* <Button onClick={() => setOpen(true)}>Open Popup</Button> */}
       <Dialog open={open} onClose={() => setOpen(false)}>
 
       <DialogTitle sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
@@ -282,6 +360,21 @@ function BatchStudents() {
           <Button onClick={handleSubmit}>Submit</Button>
         </DialogActions> */}
       </Dialog>
+
+
+      {/* Confirm dialog */}
+      <Dialog open={confirmOpen} onClose={() => setConfirmOpen(false)}>
+        <DialogTitle>Delete Student</DialogTitle>
+        <DialogContent>
+          <p>Are you sure you want to delete this student?</p>
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={() => setConfirmOpen(false)}>Cancel</Button>
+          <Button onClick={handleDeleteConfirm} color="error">Delete</Button>
+        </DialogActions>
+      </Dialog>
+
+      <ToastContainer position={toast.POSITION.TOP_CENTER}  style={{ marginTop: '100px' }}/>
 
 
       

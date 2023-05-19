@@ -46,10 +46,12 @@ const useStyles = makeStyles(() => ({
     borderRadius: 16,
     [useTheme().breakpoints.down('sm')]: {
       width: '70%',
+      padding: '10px',
     },
     [useTheme().breakpoints.down('xs')]: {
       width: '100%',
       height: '100%',
+      padding: '10px',
     },
   },
   textBox: {
@@ -60,8 +62,14 @@ const useStyles = makeStyles(() => ({
     width: '50%',
     height: '100%',
     paddingRight: useTheme().spacing(3),
+
+    [useTheme().breakpoints.down('sm')]: {
+      width: '70%',
+      height: 'auto',
+      paddingRight: 0,
+    },
     [useTheme().breakpoints.down('xs')]: {
-      width: '100%',
+      width: '70%',
       height: 'auto',
       paddingRight: 0,
     },
@@ -131,37 +139,24 @@ const LoginOtp = () => {
     
     const phone = "+91"+phoneNumber;
 
-    const docRef = doc(db, "trainers", phone);
+    generateReCaptcha();
 
-    const docSnapshot = await getDoc(docRef);
+    let appVerifier = window.recaptchaVerifier;
+    signInWithPhoneNumber(auth, phone, appVerifier)
+    .then((confirmationResult) => {
+      window.confirmationResult = confirmationResult;
 
-    if (docSnapshot.exists()) {
-      // return docSnapshot.id === phoneNumber;
-      console.log("Verifying phone number:", phone);
-      generateReCaptcha();
+      navigate('/verify');
 
-      let appVerifier = window.recaptchaVerifier;
-      signInWithPhoneNumber(auth, phone, appVerifier)
-      .then((confirmationResult) => {
-        window.confirmationResult = confirmationResult;
-
-        navigate('/verify');
-
-      }).catch((error) => {
-        console.log(error);
-        toast.error('This phone number is not valid', {
-          position: toast.POSITION.TOP_CENTER,
-        });
-      });
-
-    }
-
-    else{
-      toast.error('This phone number is not registered. Please contact the admin.', {
+    }).catch((error) => {
+      console.log(error);
+      toast.error('This phone number is not valid', {
         position: toast.POSITION.TOP_CENTER,
       });
-    } 
+    });
+
 };
+
 
   return (
     <ThemeProvider theme={theme}>
@@ -170,7 +165,7 @@ const LoginOtp = () => {
           <Box className={classes.textBox} >
             <img src={logo} alt="company logo" className={classes.logo} />
             <Typography variant="h6" align="center" gutterBottom>
-              Welcome back!
+              Welcome!
             </Typography>
             <Typography variant="body2" align="center" gutterBottom>
               Enter your phone number to log in

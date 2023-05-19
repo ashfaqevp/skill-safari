@@ -7,13 +7,23 @@ import { doc, getDoc } from 'firebase/firestore';
 
 import { makeStyles } from '@mui/styles';
 import { useTheme } from '@mui/material/styles';
-import { AppBar, Toolbar, IconButton, Menu, MenuItem, Badge, Avatar, Typography, useMediaQuery  } from '@mui/material';
+import { AppBar, Toolbar, IconButton, Menu, MenuItem, Divider, Avatar, Typography, useMediaQuery  } from '@mui/material';
 
 import NotificationsIcon from '@mui/icons-material/Notifications';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 
+import Dialog from '@mui/material/Dialog'
+import DialogContent from '@mui/material/DialogContent';
+import DialogTitle from '@mui/material/DialogTitle';
+import { Close,} from "@mui/icons-material";
+
 import logo from '../Images/logolight.png';
 import logoSmall from '../Images/logo.png';
+
+import { toast, ToastContainer } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
+
+import EditProfile from "../Pages/Trainers/EditProfile";
 
 const useStyles = makeStyles(() => ({
   root: {
@@ -68,9 +78,7 @@ const useStyles = makeStyles(() => ({
     marginLeft: '1rem',
   },
   avatar: {
-    height: useTheme().spacing(2.5), // decrease avatar size
-    width: useTheme().spacing(2.5),
-    backgroundColor: '#3f51b5',
+
     margin:"10px ",
     [useTheme().breakpoints.down('sm')]: {
       marginLeft: '5px',
@@ -109,6 +117,9 @@ const Navbar = () => {
   const [userPhone, setUserPhone] = useState("")
   const [userLogo, setUserLogo] = useState("O")
 
+
+  const [openEdit, setOpenEdit] = useState(false);
+
    useEffect(() => {
 
     const unsubscribe = onAuthStateChanged(auth, (user) => {
@@ -122,7 +133,12 @@ const Navbar = () => {
 
   useEffect(() => {
 
-    async function fetchData() {
+
+    fetchData();
+  }, [userPhone]);
+
+  
+  async function fetchData() {
     const docRef = doc(db, 'trainers', userPhone);
     const docSnap = await getDoc(docRef);
 
@@ -134,9 +150,6 @@ const Navbar = () => {
         console.log('No such document!');
       }
     }
-
-    fetchData();
-  }, [userPhone]);
 
 
 
@@ -162,6 +175,25 @@ const Navbar = () => {
     setAnchorEl(null);
   };
 
+
+
+  const handleEdit = () => {
+    
+    setOpenEdit(true);
+  };
+
+
+  function handleSubmit2() {
+
+    toast.success(' Profile successfully Edited', {
+      position: toast.POSITION.TOP_CENTER,
+    });
+
+    fetchData();
+    setOpenEdit(false);
+    setAnchorEl(null);
+  }
+
   return (
     <div className={classes.root}>
       <AppBar position="static" color="primary">
@@ -169,24 +201,22 @@ const Navbar = () => {
           <Link style={{marginRight:"15px"}} to="/">
           <img src={isSmallScreen ? logoSmall : logo} alt="Company Logo" height="63" />
           </Link>
-          <NavLink to="/" className={classes.navLink} activeClassName={classes.active}>
+          <NavLink to="/tr/batches" className={classes.navLink} activeClassName={classes.active}>
             Batches
           </NavLink>
-          <NavLink to="/timetable" className={classes.navLink} activeClassName={classes.active}>
-            Timetable
+          <NavLink to="/tr/students" className={classes.navLink} activeClassName={classes.active}>
+            Students
           </NavLink>
-          <NavLink to="/chat" className={classes.navLink} activeClassName={classes.active}>
-            Chat
-          </NavLink>
+
           <div className={classes.title} />
-          <IconButton color="inherit">
+          {/* <IconButton color="inherit">
             <Badge badgeContent={0} color="secondary">
               <NotificationsIcon />
             </Badge>
-          </IconButton>
+          </IconButton> */}
 
            <div className={classes.avatarContainer} onClick={handleAvatarClick}>
-            <Avatar className={classes.avatar}>{userLogo}</Avatar>
+            <Avatar src={user.imageUrl} sx={{marginLeft:"10px"}}  className={classes.avatar}>{userLogo}</Avatar>
             <Typography variant="subtitle1" className={classes.name}>
               {user.name}
             </Typography>
@@ -203,11 +233,33 @@ const Navbar = () => {
             onClose={handleMenuClose}
             classes={{ paper: classes.menu }} 
           >
-            <MenuItem onClick={handleMenuClose}>Profile</MenuItem>
+            <MenuItem onClick={handleEdit}>Profile</MenuItem>
             <MenuItem onClick={handleLogout}>Logout</MenuItem>
           </Menu>
         </Toolbar>
       </AppBar>
+
+      <Dialog open={openEdit} maxWidth="md" onClose={() => setOpenEdit(false)}>
+
+      <DialogTitle sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+        <Typography variant="h6" sx={{ flexGrow: 1 }}>
+          Edit Profile
+        </Typography>
+        <IconButton onClick={() => setOpenEdit(false)}>
+          <Close />
+        </IconButton>
+      </DialogTitle>
+
+      <Divider style={{ marginBottom: '3px' }} />
+
+      <DialogContent>
+        <EditProfile handleSubmit={handleSubmit2} id={userPhone} />
+      </DialogContent>
+      </Dialog>
+
+      <ToastContainer position={toast.POSITION.TOP_CENTER}  style={{ marginTop: '100px' }}/>
+
+
     </div>
   );
 };

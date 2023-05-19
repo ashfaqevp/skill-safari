@@ -1,4 +1,5 @@
-import {  useLocation, useParams } from 'react-router-dom';
+import React,{useState, useEffect} from 'react';
+import {  useLocation, useParams, useNavigate } from 'react-router-dom';
 
 import { makeStyles } from '@mui/styles';
 import { useTheme } from '@mui/material/styles';
@@ -61,11 +62,11 @@ const useStyles = makeStyles(() => ({
     backgroundColor: '#F5F5F5',
     padding: useTheme().spacing(3),
     width:'100%',
-    // width: `calc(100% - ${drawerWidth}px)`,
     [useTheme().breakpoints.down('sm')]: {
       width:"100%",
     },
   },
+  
 }));
 
 
@@ -75,8 +76,12 @@ function Batch() {
   const location = useLocation();
   const {id}=useParams();
 
-  // const match = useRouteMatch('/:page/:id?');
-  // const currentPage = match ? match.params.page : '';
+  const navigate = useNavigate();
+
+  useEffect(()=>{
+    navigate("/tr/batch/" + id + "/overview")
+  },[]);
+
 
 
   const isSmallScreen = useMediaQuery(useTheme().breakpoints.down('sm'));
@@ -90,41 +95,41 @@ function Batch() {
       <Box className={classes.sidebar}>
         <List>
 
-          <ListItem button component={NavLink} to={"/batch/" + id + "/overview"} 
+          <ListItem button component={NavLink} to={"/tr/batch/" + id + "/overview"} 
           className={classes.listItem}
           activeClassName={classes.activeLink}
-          sx={{ color: location.pathname  === "/batch/" + id + "/overview" || location.pathname  === "/batch/" + id   ? 'primary.main' : 'text.secondary' }} >
+          sx={{ color: location.pathname  === "/tr/batch/" + id + "/overview" || location.pathname  === "/tr/batch/" + id   ? 'primary.main' : 'text.secondary' }} >
             <ListItemIcon>
-              <OverviewIcon sx={{ color: location.pathname === "/batch/" + id + "/overview" || location.pathname  === "/batch/" + id ? 'blue' : 'text.secondary' }} />
+              <OverviewIcon sx={{ color: location.pathname === "/tr/batch/" + id + "/overview" || location.pathname  === "/tr/batch/" + id ? 'blue' : 'text.secondary' }} />
             </ListItemIcon>
             <ListItemText primary="Overview" />
           </ListItem>
 
-          <ListItem button component={NavLink} to={"/batch/" + id + "/students"} 
+          <ListItem button component={NavLink} to={"/tr/batch/" + id + "/students"} 
            className={classes.listItem}
           activeClassName={classes.activeLink}
-          sx={{ color: location.pathname  === "/batch/" + id + "/students" ? 'primary.main' : 'text.secondary' }}>
+          sx={{ color: location.pathname  === "/tr/batch/" + id + "/students" ? 'primary.main' : 'text.secondary' }}>
             <ListItemIcon>
-              <StudentsIcon sx={{ color: location.pathname === "/batch/" + id + "/students" ? 'blue' : 'text.secondary' }} />
+              <StudentsIcon sx={{ color: location.pathname === "/tr/batch/" + id + "/students" ? 'blue' : 'text.secondary' }} />
             </ListItemIcon>
             <ListItemText primary="Students" />
           </ListItem>
 
-          <ListItem button component={NavLink} to={"/batch/" + id + "/attendance"} 
+          <ListItem button component={NavLink} to={"/tr/batch/" + id + "/attendance"} 
            className={classes.listItem}
-            sx={{ color: location.pathname  === "/batch/" + id + "/attendance"  ? 'primary.main' : 'text.secondary' }}>
+            sx={{ color: location.pathname  === "/tr/batch/" + id + "/attendance"  ? 'primary.main' : 'text.secondary' }}>
             <ListItemIcon>
-              <AttendanceIcon sx={{ color: location.pathname === "/batch/" + id + "/attendance" ? 'blue' : 'text.secondary' }} />
+              <AttendanceIcon sx={{ color: location.pathname === "/tr/batch/" + id + "/attendance" ? 'blue' : 'text.secondary' }} />
             </ListItemIcon>
             <ListItemText primary="Attendance" sx={{fontWeight: 900}} />
           </ListItem>
 
 
-          <ListItem button component={NavLink} to={"/batch/" + id + "/certificate"} 
+          <ListItem button component={NavLink} to={"/tr/batch/" + id + "/certificate"} 
            className={classes.listItem}
-           sx={{ color: location.pathname === "/batch/" + id + "/certificate" ? 'primary.main' : 'text.secondary' , fontWeight: location.pathname === '/test' ? 'bold' : 'normal' }}>
+           sx={{ color: location.pathname === "/tr/batch/" + id + "/certificate" ? 'primary.main' : 'text.secondary' , fontWeight: location.pathname === '/test' ? 'bold' : 'normal' }}>
             <ListItemIcon>
-              <CertificatesIcon sx={{ color: location.pathname === "/batch/" + id + "/certificate" ? 'blue' : 'text.secondary' }} />
+              <CertificatesIcon sx={{ color: location.pathname === "/tr/batch/" + id + "/certificate" ? 'blue' : 'text.secondary' }} />
             </ListItemIcon>
             <ListItemText primary="Certificates" />
           </ListItem>
@@ -135,8 +140,8 @@ function Batch() {
 
 
       <Box className={classes.content}>
-        {/* <Outlet/> */}
-        <Testb/>
+        <Outlet/>
+        {/* <Testb/> */}
       </Box>
     </div>
 
@@ -145,25 +150,25 @@ function Batch() {
       
       <BottomNavigationAction label="Overview" icon={<OverviewIcon />} showLabel={true} 
       component={NavLink}
-      to={"/batch/" + id + "/overview"}
-      sx={{ color: location.pathname  === "/batch/" + id + "/overview" || location.pathname  === "/batch/" + id  ? 'primary.main' : 'text.secondary' }}
+      to={"/tr/batch/" + id + "/overview"}
+      sx={{ color: location.pathname  === "/tr/batch/" + id + "/overview" || location.pathname  === "/tr/batch/" + id  ? 'primary.main' : 'text.secondary' }}
       activeClassName={classes.active} />
 
       <BottomNavigationAction label="Students" icon={<StudentsIcon />} showLabel={true} 
       component={NavLink}
-      to={"/batch/" + id + "/students"}
-      sx={{ color: location.pathname  === "/batch/" + id + "/students" ? 'primary.main' : 'text.secondary' }}
+      to={"/tr/batch/" + id + "/students"}
+      sx={{ color: location.pathname  === "/tr/batch/" + id + "/students" ? 'primary.main' : 'text.secondary' }}
       activeClassName={classes.active}/>
 
       <BottomNavigationAction label="Attendance" icon={<AttendanceIcon />} showLabel={true}
       component={NavLink}
-      to={"/batch/" + id + "/attendance"}
-      sx={{ color: location.pathname === "/batch/" + id + "/attendance" ? 'primary.main' : 'text.secondary'  }} />
+      to={"/tr/batch/" + id + "/attendance"}
+      sx={{ color: location.pathname === "/tr/batch/" + id + "/attendance" ? 'primary.main' : 'text.secondary'  }} />
 
       <BottomNavigationAction label="Certificates" icon={<CertificatesIcon />} showLabel={true}
       component={NavLink}
-      to={"/batch/" + id + "/certificate"}
-      sx={{ color: location.pathname === "/batch/" + id + "/certificate" ? 'primary.main' : 'text.secondary'  }} />
+      to={"/tr/batch/" + id + "/certificate"}
+      sx={{ color: location.pathname === "/tr/batch/" + id + "/certificate" ? 'primary.main' : 'text.secondary'  }} />
       
 
   </BottomNavigation>

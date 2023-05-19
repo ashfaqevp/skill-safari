@@ -175,19 +175,10 @@ const AllBatches = () => {
   }, [userBatches]);
 
 
-  const getRandomColor = () => {
-    const colors = ["#4285F4", "#DB4437", "#F4B400", "#0F9D58", "#34A853", "#EA4335", "#FBBC05", "#4286f4", "#9AA0A6", "#7FDBFF", "#2ECC40", "#FF4136", "#FFDC00"];
-    const availableColors = colors.filter((color) => !usedColors.includes(color));
-    if (availableColors.length === 0) {
-      // all colors have been used, reset the list
-      usedColors.splice(0, usedColors.length);
-      return colors[0];
-    } else {
-      const randomIndex = Math.floor(Math.random() * availableColors.length);
-      const randomColor = availableColors[randomIndex];
-      usedColors.push(randomColor);
-      return randomColor;
-    }
+  const getAvatarColor = (index) => {
+    const colors = [ "#34A853", "#EA4335", "#FBBC05", "#4285F4", "#DB4437", "#F4B400", "#0F9D58", "#4286f4",  "#7FDBFF", "#2ECC40", "#FF4136", "#FFDC00"];
+    const colorIndex = index % colors.length;
+    return colors[colorIndex];
   };
 
 
@@ -195,7 +186,9 @@ const AllBatches = () => {
     <div className={classes.root}>
 
       {isLoading ? (
-              <CircularProgress />
+          <div style={{ display: "flex", justifyContent: "center",alignItems: "center", height: "60vh",}}>
+             <CircularProgress />
+          </div>
             ) : (
 
               <div>
@@ -235,7 +228,7 @@ const AllBatches = () => {
 
 
 
-      <Card component={Link} to={`/batch/${batch.code}`} key={batch.code} className={classes.card}>
+      <Card component={Link} to={`/tr/batch/${batch.code}`} key={batch.code} className={classes.card}>
 
           <div className={classes.content} >
             <p className={classes.header} ><b>{batch.name}</b></p>
@@ -257,7 +250,8 @@ const AllBatches = () => {
 
             <div style={{ position: 'relative' , background:'#fafafa', }} >
               {batch.students.slice(0, 3).map((student, index) => (
-                <Avatar sx={{ bgcolor: getRandomColor(), width: 35, height: 35, fontSize:18,
+                <Avatar src={student.imageUrl}
+                  sx={{ bgcolor: getAvatarColor(index), width: 35, height: 35, fontSize:18,
                   position: 'absolute',
                    left: `${index * 30}px`,
                    zIndex: `${batch.students.length - index }`,

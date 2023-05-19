@@ -1,16 +1,27 @@
 import React,{useEffect, useState} from "react";
-import { useParams, Link } from 'react-router-dom';
+import { useParams, Link, useNavigate } from 'react-router-dom';
 
-import { where, collection, getDocs, query, doc, getDoc } from "firebase/firestore";
+import { where, collection, getDocs, query, doc, getDoc, deleteDoc } from "firebase/firestore";
 import { db } from '../../firebase';
 
 import { useTheme } from '@mui/material/styles';
 import { makeStyles } from '@mui/styles';
-import { Card, CardHeader, CardContent, IconButton, Typography, Chip,  List, ListItem, ListItemText, ListItemAvatar, Avatar, ListItemIcon, Container, Grid} from '@mui/material';
+import { Card, CardHeader, CardContent, IconButton, Divider, DialogActions, Button, Typography, Chip,  List, ListItem, ListItemText, ListItemAvatar, Avatar, ListItemIcon, Container, Grid} from '@mui/material';
 
-import { Book, DateRange} from "@mui/icons-material";
+import { Book, DateRange, Tag, Close} from "@mui/icons-material";
 import EditIcon from '@mui/icons-material/Edit';
 import DeleteIcon from '@mui/icons-material/Delete';
+
+import Dialog from '@mui/material/Dialog'
+import DialogContent from '@mui/material/DialogContent';
+import DialogTitle from '@mui/material/DialogTitle';
+
+
+
+import { toast, ToastContainer } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
+
+
 
 
 const useStyles = makeStyles(() => ({
@@ -68,16 +79,19 @@ const BatchOverview = () => {
 
   const classes = useStyles();
   const {id}=useParams();
+  const navigate = useNavigate();
 
   const [usedColors, setUsedColors] = useState([]);
   const [students, setStudents] = useState([]);
   const [batchData, setBatchData] = useState({});
   const [batchSubjects, setBatchSubjects] = useState([]);
 
+  const [openEdit, setOpenEdit] = useState(false);
+  const [confirmOpen, setConfirmOpen] = useState(false);
+
   useEffect(() => {
     fetchData();
     fetchStudentsData();
-
   }, []);
 
   const fetchData = async () => {
@@ -86,7 +100,6 @@ const BatchOverview = () => {
     if (docSnap.exists()) {
       setBatchData(docSnap.data());
       setBatchSubjects(docSnap.data().subjects)
-    
       console.log('No such document!');
     }
   };
@@ -100,20 +113,32 @@ const BatchOverview = () => {
   };
 
   
-  const getRandomColor = () => {
-    const colors = ["#4285F4", "#DB4437", "#F4B400", "#0F9D58", "#34A853", "#EA4335", "#FBBC05", "#4286f4", "#9AA0A6", "#7FDBFF", "#2ECC40", "#FF4136", "#FFDC00"];
-    const availableColors = colors.filter((color) => !usedColors.includes(color));
-    if (availableColors.length === 0) {
-      // all colors have been used, reset the list
-      usedColors.splice(0, usedColors.length);
-      return colors[0];
-    } else {
-      const randomIndex = Math.floor(Math.random() * availableColors.length);
-      const randomColor = availableColors[randomIndex];
-      usedColors.push(randomColor);
-      return randomColor;
-    }
+  const getAvatarColor = (index) => {
+    const colors = [ "#34A853", "#EA4335", "#FBBC05", "#4285F4", "#DB4437", "#F4B400", "#0F9D58", "#4286f4",  "#7FDBFF", "#2ECC40", "#FF4136", "#FFDC00"];
+    const colorIndex = index % colors.length;
+    return colors[colorIndex];
   };
+
+
+
+
+  const handleEdit = () => {
+    setOpenEdit(true);
+  };
+
+
+
+
+
+
+  function handleSubmit2() {
+      toast.success(' Batch successfully Edited', {
+      position: toast.POSITION.TOP_CENTER,
+    });
+
+    fetchData();
+    setOpenEdit(false);
+  }
 
   return (
     <Container maxWidth="lg" className={classes.root}>
@@ -130,12 +155,12 @@ const BatchOverview = () => {
                     <div className={classes.header}>
                       <Typography variant="h6">{batchData.name}</Typography>
                       <div>
-                        <IconButton aria-label="edit">
-                          <EditIcon />
+                        {/* <IconButton aria-label="edit">
+                          <EditIcon  onClick={handleEdit} />
                         </IconButton>
                         <IconButton aria-label="delete">
-                          <DeleteIcon />
-                        </IconButton>
+                          <DeleteIcon onClick={handleDeleteClick} />
+                        </IconButton> */}
                       </div>
                     </div>
                   }
@@ -149,7 +174,7 @@ const BatchOverview = () => {
         
                         <ListItem className={classes.listItem}>
                           <ListItemIcon>
-                             < Book  />
+                             < Tag  />
                           </ListItemIcon>
                           <ListItemText
                           
@@ -280,7 +305,7 @@ const BatchOverview = () => {
                   {students.slice(0, 5).map((student, index) => (
                     <ListItem key={index}>
                       <ListItemAvatar>
-                        <Avatar className={classes.avatar} sx={{ bgcolor: getRandomColor()}} >
+                        <Avatar src={student.imageUrl} className={classes.avatar} sx={{ bgcolor: getAvatarColor(index)}} >
                           {student.name[0]}</Avatar>
                       </ListItemAvatar>
                       <ListItemText style={{width:"30%"}} primary={student.name}  />
@@ -289,7 +314,7 @@ const BatchOverview = () => {
                   ))}
                 </List>
 
-                  <Link style={{textAlign:"center", color:"blue", marginBottom:0, paddingBottom:0}} to={"/batch/" + id + "/students"} ><h4>Show More</h4></Link>
+                  <Link style={{textAlign:"center", color:"blue", marginBottom:0, paddingBottom:0}} to={"/tr/batch/" + id + "/students"} ><h4>Show More</h4></Link>
 
             </CardContent>
           </Card>
@@ -297,6 +322,17 @@ const BatchOverview = () => {
 
         
       </Grid>
+
+
+
+
+
+
+
+
+     <ToastContainer position={toast.POSITION.TOP_CENTER}  style={{ marginTop: '100px' }}/>
+
+
     </Container>
   );
 };

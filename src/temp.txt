@@ -1,3 +1,694 @@
+import React, { useState } from 'react';
+
+import { collection, addDoc } from "firebase/firestore";
+import { ref, uploadBytes, getDownloadURL } from "firebase/storage";
+import { db, storage } from '../../firebase';
+
+import { TextField, Button, Box, Typography, Grid,  IconButton , InputAdornment, Avatar} from '@mui/material';
+import { makeStyles } from '@mui/styles';
+import { useTheme } from '@mui/material/styles';
+
+import { Add as AddIcon, PhotoCamera, PersonAdd  } from '@mui/icons-material';
+import { Email, Phone, LocationOn, Description, Edit, EmojiObjects, LinkedIn, GitHub, Facebook, Twitter, Instagram, Telegram } from '@mui/icons-material';
+
+
+import { toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
+
+const useStyles = makeStyles(() => ({
+  container: {
+    margin: '2rem auto',
+    padding: '2rem',
+    maxWidth: '800px',
+    borderRadius: '10px',
+    textAlign: 'center',
+  },
+  inputField: {
+    marginBottom: '1rem',
+  },
+  plusButton: {
+    marginLeft: '0.5rem',
+  },
+  removeButton: {
+    marginLeft: '0.5rem',
+    color: 'red',
+  },
+  uploadContainer: {
+    display: 'flex',
+    flexDirection: 'column',
+    alignItems: 'center',
+    marginTop: '2rem',
+  },
+  uploadInput: {
+    display: 'none',
+  },
+  imagePreview: {
+    width: '200px',
+    height: 'auto',
+    marginTop: '1rem',
+  },
+  root: {
+    '& > *': {
+      margin: useTheme().spacing(1),
+      width: '100%',
+    },
+  },
+  avatar: {
+    width: useTheme().spacing(20),
+    height: useTheme().spacing(20),
+    margin: useTheme().spacing(1),
+    cursor: 'pointer',
+  },
+  
+
+}));
+
+
+const AddProjects = (props) => {
+
+  
+  const classes = useStyles();
+
+  const [title, setTitle] = useState("");
+  const [category, setCategory] = useState("");
+  const [description, setDescription] = useState("");
+  const [videoLink, setVideoLink] = useState("");
+  const [github, setGithub] = useState("");
+  const [live, setLive] = useState("");
+  const [tools, setTools] = useState([]);
+  const [features, setFeatures] = useState([]);
+  const [imagePreview, setImagePreview] = useState(null);
+  const [image, setImage] = useState(null);
+  
+ 
+
+  const handleToolChange = (e, index) => {
+    const updatedTools = [...tools];
+    updatedTools[index] = e.target.value;
+    setTools(updatedTools);
+  };
+
+  const handleAddTool = () => {
+    setTools([...tools, '']);
+  };
+
+  const handleRemoveTool = (index) => {
+    const updatedTools = [...tools];
+    updatedTools.splice(index, 1);
+    setTools(updatedTools);
+  };
+
+
+
+  const handleFeatureChange = (e, index) => {
+    const updatedTools = [...features];
+    updatedTools[index] = e.target.value;
+    setFeatures(updatedTools);
+  };
+
+  const handleAddFeature = () => {
+    setFeatures([...features, '']);
+  };
+
+  const handleRemoveFeature = (index) => {
+    const updatedTools = [...features];
+    updatedTools.splice(index, 1);
+    setFeatures(updatedTools);
+  };
+
+  
+
+  const handleImageUpload = (e) => {
+    const file = e.target.files[0];
+    const reader = new FileReader();
+    setImage(e.target.files[0]);
+
+
+    reader.onload = () => {
+      setImagePreview(reader.result);
+    };
+
+    reader.readAsDataURL(file);
+  };
+
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+  
+    if(title && category && description && github && live && image ){
+
+    const storageRef = ref(storage, `projects/${image.name}`);
+    await uploadBytes(storageRef, image);
+  
+    // get image download URL from Storage
+    const imageUrl = await getDownloadURL(storageRef);
+  
+    try {
+      const projectRef = collection(db, "projects");
+      const newProject = {
+        title: title,
+        category: category,
+        description: description,
+        videoLink: videoLink,
+        githubLink: github,
+        liveUrl: live,
+        toolsUsed: tools,
+        features: features,
+        imageUrl: imageUrl,
+      };
+
+      await addDoc(projectRef, newProject);
+      console.log("Project added successfully!");
+      props.handleSubmit();
+
+    } catch (error) {
+      console.error("Error adding project: ", error);
+    }
+
+    }
+    else{
+        toast.error('Please fill in all fields', {
+          position: toast.POSITION.TOP_CENTER,
+        });
+    }
+  
+  };
+
+
+
+  const handleImageChange = (event) => {
+    if (event.target.files && event.target.files[0]) {
+      let reader = new FileReader();
+      reader.onload = (e) => {
+        setImage(e.target.result);
+      };
+      reader.readAsDataURL(event.target.files[0]);
+    }
+  };
+  
+
+
+  return (
+    <Box className={classes.container}>
+      {/* <Typography variant="h4">Add Project</Typography> */}
+
+
+
+
+
+
+    <Grid container spacing={2} className={classes.root}>
+
+
+      {/* <Grid item xs={12}>
+        <Avatar
+          alt="Profile Picture"
+          src={image || 'https://dummyimage.com/200x200/000000/fff'}
+          className={classes.avatar}
+          onClick={() => document.getElementById('imageInput').click()}
+        />
+        <input
+          type="file"
+          id="imageInput"
+          accept="image/*"
+          style={{ display: 'none' }}
+          onChange={handleImageChange}
+        />
+        <InputAdornment position="end">
+          <IconButton component="label">
+            <PhotoCamera />
+            <input
+              type="file"
+              accept="image/*"
+              style={{ display: 'none' }}
+              onChange={handleImageChange}
+            />
+          </IconButton>
+        </InputAdornment>
+      </Grid> */}
+
+
+    <Grid item xs={3}>
+      {/* <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'flex-start',  }}>
+        <div style={{ width: '120px', height: '120px', borderRadius: '50%', overflow: 'hidden', position: 'relative' }}>
+          <img src={image ? URL.createObjectURL(image) : 'https://via.placeholder.com/120x120'} alt="Profile" style={{ width: '100%', height: '100%' , objectFit: 'cover', borderRadius: '50%' }} />
+        
+          <label htmlFor="image-upload" style={{ position: 'absolute', bottom: '4px', right: '4px' }}>
+            <IconButton component="span" size="small">
+              <PhotoCamera />
+            </IconButton>
+          </label>
+
+          
+        </div>
+      </div> */}
+
+
+
+<div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
+  <div style={{ width: '120px', height: '120px', borderRadius: '50%', overflow: 'hidden', position: 'relative' }}>
+    <div style={{ position: 'absolute', top: '0', left: '0', width: '100%', height: '100%', display: 'flex', justifyContent: 'center', alignItems: 'center', borderRadius: '50%', backgroundColor: 'rgba(0, 0, 0, 0.5)' }}>
+      <label htmlFor="image-upload" style={{ zIndex: '1', position: 'relative' }}>
+        <IconButton component="span" size="small" style={{ color: '#fff' }}>
+          <PhotoCamera />
+        </IconButton>
+      </label>
+    </div>
+    <img src={image ? URL.createObjectURL(image) : 'https://via.placeholder.com/120x120'} alt="Profile" style={{ width: '100px', height: '100px', objectFit: 'cover', position: 'absolute', top: '0', left: '0', borderRadius: '50px' }} />
+  </div>
+</div>
+
+    </Grid> 
+
+
+      <Grid item xs={9}>
+        <TextField
+          sx={{mt:5}}
+          label="Name"
+          fullWidth
+          InputProps={{
+            startAdornment: (
+              <InputAdornment position="start">
+                <Edit />
+              </InputAdornment>
+            ),
+          }}
+        />
+      </Grid>
+y
+
+      <Grid item xs={12} sm={6}>
+        <TextField
+        sx={{mt:4}}
+          label="Email"
+          fullWidth
+          InputProps={{
+            startAdornment: (
+              <InputAdornment position="start">
+                <Email />
+              </InputAdornment>
+            ),
+          }}
+        />
+      </Grid>
+      <Grid item xs={12} sm={6}>
+        <TextField
+          label="Phone"
+          fullWidth
+          InputProps={{
+            startAdornment: (
+              <InputAdornment position="start">
+                <Phone />
+              </InputAdornment>
+            ),
+          }}
+        />
+      </Grid>
+      <Grid item xs={12}>
+        <TextField
+          label="About"
+          multiline
+          rows={4}
+          fullWidth
+          InputProps={{
+            startAdornment: (
+              <InputAdornment position="start">
+                <Description />
+              </InputAdornment>
+            ),
+          }}
+        />
+      </Grid>
+      <Grid item xs={12}>
+        <TextField
+          label="Address"
+          fullWidth
+          InputProps={{
+            startAdornment: (
+              <InputAdornment position="start">
+                <LocationOn />
+              </InputAdornment>
+            ),
+          }}
+        />
+      </Grid>
+      <Grid item xs={12}>
+        <TextField
+          label="Hobbies"
+          multiline
+          rows={4}
+          fullWidth
+          InputProps={{
+            startAdornment: (
+              <InputAdornment position="start">
+                <EmojiObjects />
+              </InputAdornment>
+            ),
+          }}
+        />
+      </Grid>
+      <Grid item xs={12} sm={6}>
+        <TextField
+          label="LinkedIn"
+          fullWidth
+          InputProps={{
+            startAdornment: (
+              <InputAdornment position="start">
+                <LinkedIn />
+              </InputAdornment>
+            ),
+          }}
+        />
+      </Grid>
+      <Grid item xs={12} sm={6}>
+        <TextField
+          label="Github"
+          fullWidth
+          InputProps={{
+            startAdornment: (
+              <InputAdornment position="start">
+                <GitHub />
+              </InputAdornment>
+            ),
+          }}
+        />
+      </Grid>
+      <Grid item xs={12} sm={6}>
+        <TextField
+          label="Facebook"
+          fullWidth
+          InputProps={{
+            startAdornment: (
+              <InputAdornment position="start">
+                <Facebook />
+              </InputAdornment>
+            ),
+          }}
+        />
+      </Grid>
+
+      <Grid item xs={12} sm={6}>
+        <TextField
+          label="Twitter"
+          fullWidth
+          InputProps={{
+            startAdornment: (
+              <InputAdornment position="start">
+                <Twitter />
+              </InputAdornment>
+            ),
+          }}
+        />
+      </Grid>
+
+      
+      <Grid item xs={12} sm={6}>
+        <TextField
+          label="Instagram"
+          fullWidth
+          InputProps={{
+            startAdornment: (
+              <InputAdornment position="start">
+                <Instagram />
+              </InputAdornment>
+            ),
+          }}
+        />
+      </Grid>
+      <Grid item xs={12} sm={6}>
+        <TextField
+          label="Telegram"
+          fullWidth
+          InputProps={{
+            startAdornment: (
+              <InputAdornment position="start">
+                <Telegram />
+              </InputAdornment>
+            ),
+          }}
+        />
+      </Grid>
+
+          
+
+          <Grid container justifyContent="flex-end">
+            <Grid item>
+              <Button endIcon={<PersonAdd />} style={{marginTop:"20px"}} variant="contained" onClick={handleSubmit}>SAVE STUDENTS</Button>
+            </Grid>
+          </Grid>
+
+
+          </Grid>
+
+
+
+      
+          </Box>
+  );
+};
+
+export default AddProjects;
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+import React, { useState, useEffect } from 'react';
+
+import { collection, doc, setDoc , getDocs, getDoc} from 'firebase/firestore';
+import { db, storage } from '../../firebase';
+
+import {
+  FormControl,
+  InputLabel,
+  Select,
+  MenuItem,
+  Checkbox,
+  ListItemText,
+  FormControlLabel,
+  Button,
+} from '@mui/material';
+
+const Test = () => {
+  const [batches, setBatches] = useState([]);
+  const [students, setStudents] = useState([]);
+  const [selectedBatch, setSelectedBatch] = useState('');
+  const [selectedStudents, setSelectedStudents] = useState([]);
+
+  // const [selectedStudents, setSelectedStudents] = useState([]);
+
+// Fetch selected students from Firestore when the component mounts
+useEffect(() => {
+  const fetchSelectedStudents = async () => {
+    const trainerName = 'John Doe'; // replace with trainer name
+    const trainerRef = doc(db, 'trainers', trainerName);
+    const trainerSnapshot = await getDoc(trainerRef);
+    if (trainerSnapshot.exists()) {
+      const { students } = trainerSnapshot.data();
+      const selectedStudents = students.map((student) => student.studentId);
+      setSelectedStudents(selectedStudents);
+    }
+  };
+
+  fetchSelectedStudents();
+}, []);
+
+
+
+useEffect(() => {
+    const fetchBatches = async () => {
+      const batchesRef = collection(db, 'batches');
+      const batchesSnapshot = await getDocs(batchesRef);
+      const batchList = batchesSnapshot.docs.map((doc) => ({
+        id: doc.id,
+        name: doc.data().name,
+      }));
+      setBatches(batchList);
+    };
+
+    fetchBatches();
+  }, []);
+
+  const handleBatchChange = async (event) => {
+    const batchId = event.target.value;
+    setSelectedBatch(batchId);
+
+    const studentsRef = collection(db, 'batches', batchId, 'students');
+    const studentsSnapshot = await getDocs(studentsRef);
+    const studentList = studentsSnapshot.docs.map((doc) => ({
+      id: doc.id,
+      name: doc.data().name,
+    }));
+    setStudents(studentList);
+  };
+
+
+
+  const handleStudentChange = (event, studentId) => {
+    const checked = event.target.checked;
+  
+    if (checked) {
+      setSelectedStudents((prevSelectedStudents) => [...prevSelectedStudents, studentId]);
+    } else {
+      setSelectedStudents((prevSelectedStudents) =>
+        prevSelectedStudents.filter((id) => id !== studentId)
+      );
+    }
+  };
+  
+  
+
+const handleAddClick = async () => {
+  const trainerName = 'John Doe'; // replace with trainer name
+  const trainerRef = doc(db, 'trainers', trainerName);
+
+  const selectedStudentsData = selectedStudents.map((studentId) => ({
+    studentId,
+    batchId: selectedBatch, // replace with the actual batch ID
+  }));
+
+  try {
+    await setDoc(trainerRef, { students: selectedStudentsData }, { merge: true });
+    console.log('Students added successfully!');
+  } catch (error) {
+    console.error('Error adding students:', error);
+  }
+};
+
+
+
+  return (
+    <div>
+      <FormControl sx={{ m: 1, minWidth: 120 }}>
+        <InputLabel id="batch-label">Batch</InputLabel>
+        <Select
+          labelId="batch-label"
+          id="batch"
+          value={selectedBatch}
+          onChange={handleBatchChange}
+        >
+          {batches.map((batch) => (
+            <MenuItem key={batch.id} value={batch.id}>
+              {batch.name}
+            </MenuItem>
+          ))}
+        </Select>
+      </FormControl>
+      <FormControl sx={{ m: 1, minWidth: 120 }}>
+        <InputLabel id="student-label" shrink>Students</InputLabel>
+        <Select
+          labelId="student-label"
+          id="student"
+          multiple
+          value={selectedStudents}
+          onChange={handleStudentChange}
+          renderValue={(selected) => selected.join(', ')}
+        >
+          {students.map((student) => (
+
+                    <FormControlLabel
+                      key={student.id}
+                      control={
+                      <Checkbox
+                        checked={selectedStudents.includes(student.id)}
+                        onChange={(event) => handleStudentChange(event, student.id)}
+                      />
+                      }
+                      label={student.name}
+                    />
+          ))}
+        </Select>
+      </FormControl>
+      <Button variant="contained" onClick={handleAddClick}>Add</Button>
+    </div>
+  );
+};
+
+export default Test;
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 import React,{useState , useEffect , useRef} from 'react';
 import {useParams, Outlet, Link} from 'react-router-dom';
 import BatchNavbar from '../../Components/BatchNavbar'
